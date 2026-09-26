@@ -4,14 +4,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppExitLink } from '../../components/AppExitLink';
 import { RoleGate } from '../../components/RoleGate';
 import { useResetDemo } from '../../data/office';
+import { useNewRequestCount } from '../../data/officeRequests';
 import { Stage } from '../../ui/controls';
 import { Display, LqButton, LqGlass, Mono, Txt } from '../../ui/primitives';
 import { usePalette } from '../../ui/theme';
 
 const TABS = [
-  { href: '/office/pricing', label: 'Pricing' },
-  { href: '/office/dispatch', label: 'Dispatch' },
-  { href: '/office/quotes', label: 'Add-on quotes' },
+  { key: 'pricing', href: '/office/pricing', label: 'Pricing' },
+  { key: 'dispatch', href: '/office/dispatch', label: 'Dispatch' },
+  { key: 'quotes', href: '/office/quotes', label: 'Add-on quotes' },
+  { key: 'requests', href: '/office/requests', label: 'Requests' },
 ] as const;
 
 export default function OfficeLayout() {
@@ -46,20 +48,40 @@ function OfficeConsole() {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const wide = width >= 820;
+  const newRequests = useNewRequestCount();
 
   const nav = TABS.map((t) => {
     const on = path.startsWith(t.href);
+    const count = t.key === 'requests' ? newRequests : 0;
     return (
       <Pressable
         key={t.href}
+        testID={`office-tab-${t.key}`}
         onPress={() => router.replace(t.href)}
         accessibilityRole="tab"
         accessibilityState={{ selected: on }}
-        style={{ paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, backgroundColor: on ? c.accent : 'transparent' }}
+        accessibilityLabel={count ? `${t.label}, ${count} new` : t.label}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 8,
+          paddingVertical: 10,
+          paddingHorizontal: 12,
+          borderRadius: 12,
+          backgroundColor: on ? c.accent : 'transparent',
+        }}
       >
         <Txt weight="600" color={on ? c.accentInk : c.ink}>
           {t.label}
         </Txt>
+        {count ? (
+          <View style={{ minWidth: 20, paddingHorizontal: 6, paddingVertical: 1, borderRadius: 10, backgroundColor: on ? c.accentInk : c.accent, alignItems: 'center' }}>
+            <Mono size={10} medium color={on ? c.accent : c.accentInk}>
+              {count}
+            </Mono>
+          </View>
+        ) : null}
       </Pressable>
     );
   });
