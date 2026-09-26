@@ -1,7 +1,7 @@
 // node --test --experimental-strip-types supabase/functions/_shared/*.test.ts
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { NETWORK_VENDORS, addDays, chicagoToday, networkBidPrice, skipReason } from './quote.ts';
+import { NETWORK_VENDORS, addDays, chicagoToday, mayFanOut, networkBidPrice, skipReason } from './quote.ts';
 
 test('network vendors, timing and pricing match the contract', () => {
   assert.deepEqual(
@@ -47,6 +47,18 @@ test('addDays crosses months and years', () => {
   assert.equal(addDays('2026-09-25', 4), '2026-09-29');
   assert.equal(addDays('2026-09-28', 6), '2026-10-04');
   assert.equal(addDays('2026-12-30', 6), '2027-01-05');
+});
+
+test('mayFanOut: the home owner, or the office routing a client request', () => {
+  assert.equal(mayFanOut({ ownerId: 'u1', callerId: 'u1', callerRole: 'homeowner' }), true);
+  assert.equal(mayFanOut({ ownerId: 'u1', callerId: 'u1', callerRole: null }), true);
+  assert.equal(mayFanOut({ ownerId: 'u1', callerId: 'office', callerRole: 'office' }), true);
+  assert.equal(mayFanOut({ ownerId: null, callerId: 'office', callerRole: 'office' }), true);
+  assert.equal(mayFanOut({ ownerId: 'u1', callerId: 'u2', callerRole: 'homeowner' }), false);
+  assert.equal(mayFanOut({ ownerId: 'u1', callerId: 't1', callerRole: 'tech' }), false);
+  assert.equal(mayFanOut({ ownerId: 'u1', callerId: 'v1', callerRole: 'vendor' }), false);
+  assert.equal(mayFanOut({ ownerId: undefined, callerId: 'u2', callerRole: undefined }), false);
+  assert.equal(mayFanOut({ ownerId: '', callerId: '', callerRole: null }), false);
 });
 
 test('skipReason: only open requests, one bid per vendor', () => {
