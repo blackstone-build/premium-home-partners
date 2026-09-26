@@ -446,6 +446,12 @@ end $$;
 -- 8. Service request RPCs
 -- ---------------------------------------------------------------------------
 
+-- Free text without leading or trailing whitespace of any kind (btrim only
+-- strips spaces, so a description of just newlines would count as text).
+create or replace function private.trim_text(p_text text) returns text
+  language sql immutable set search_path = public
+  as $$ select regexp_replace(coalesce(p_text, ''), '^\s+|\s+$', '', 'g') $$;
+
 -- A title from free text: whitespace collapsed, at most 80 characters, cut at
 -- a word with an ellipsis when longer.
 create or replace function private.short_title(p_text text) returns text
@@ -474,7 +480,7 @@ declare
   v_cat service_categories;
   v_kind text := btrim(coalesce(p_kind, ''));
   v_cat_id text := nullif(btrim(coalesce(p_category, '')), '');
-  v_desc text := btrim(coalesce(p_description, ''));
+  v_desc text := private.trim_text(p_description);
   v_title text := btrim(regexp_replace(coalesce(p_title, ''), '\s+', ' ', 'g'));
   v_room text := nullif(btrim(coalesce(p_room, '')), '');
   v_urgency text := coalesce(nullif(btrim(coalesce(p_urgency, '')), ''), 'whenever');
@@ -591,7 +597,7 @@ declare
   v_cat service_categories;
   v_route text := btrim(coalesce(p_route, ''));
   v_cat_id text;
-  v_note text := nullif(btrim(coalesce(p_note, '')), '');
+  v_note text := nullif(private.trim_text(p_note), '');
   v_visit visits;
   v_task_id uuid;
   v_quote quote_requests;
@@ -697,7 +703,7 @@ create or replace function public.office_update_project(
 declare
   v_req service_requests;
   v_status text := btrim(coalesce(p_status, ''));
-  v_note text := nullif(btrim(coalesce(p_note, '')), '');
+  v_note text := nullif(private.trim_text(p_note), '');
 begin
   perform private.require_role('office');
   select * into v_req from service_requests where id = p_request_id for update;
@@ -1141,7 +1147,7 @@ end $$;
 revoke execute on function
   private.service_catalog(), private.owned_service_request_ids(), private.tech_request_ids(),
   private.can_upload_request_photo(text), private.can_read_request_photo(text),
-  private.open_quote_request(uuid, text), private.short_title(text)
+  private.open_quote_request(uuid, text), private.short_title(text), private.trim_text(text)
   from public, anon;
 grant execute on function
   private.owned_service_request_ids(), private.tech_request_ids(),
@@ -1150,7 +1156,7 @@ grant execute on function
 grant execute on function
   private.service_catalog(), private.owned_service_request_ids(), private.tech_request_ids(),
   private.can_upload_request_photo(text), private.can_read_request_photo(text),
-  private.open_quote_request(uuid, text), private.short_title(text)
+  private.open_quote_request(uuid, text), private.short_title(text), private.trim_text(text)
   to service_role;
 
 -- Client RPCs: signed-in users only (restated for the replaced ones so a replace can never widen them).
