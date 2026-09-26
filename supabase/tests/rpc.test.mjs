@@ -203,7 +203,8 @@ describe('brokerage: request_quote, submit_bid, book_bid', () => {
 
   test('request_quote guards', async () => {
     await fails(call(U.jordan, 'request_quote', { p_category: 'lawn' }), 'Add your home before requesting quotes.');
-    await fails(call(U.elena, 'request_quote', { p_category: 'pool' }), "That service isn't available yet.");
+    // ('pool' is a contracted service since Services v2; see services_v2.test.mjs.)
+    await fails(call(U.elena, 'request_quote', { p_category: 'hot_tub' }), "That service isn't available yet.");
     await fails(call(U.sam, 'request_quote', { p_category: 'lawn' }), NO_ACCESS);
     await fails(call(U.marcus, 'request_quote', { p_category: 'lawn' }), NO_ACCESS);
     await fails(call(U.office, 'request_quote', { p_category: 'lawn' }), NO_ACCESS);

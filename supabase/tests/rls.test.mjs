@@ -28,7 +28,7 @@ const ALL = [
   'parts', 'part_prices', 'pricing_settings', 'task_defaults',
 ];
 
-const REFERENCE = { service_categories: 6, appliance_models: 5, model_tasks: 6, parts: 9, part_prices: 27, pricing_settings: 1, task_defaults: 7 };
+const REFERENCE = { service_categories: 26, appliance_models: 5, model_tasks: 6, parts: 9, part_prices: 27, pricing_settings: 1, task_defaults: 7 };
 
 describe('select visibility after seeding', () => {
   test('homeowner Elena sees her home, visit, tasks, notices and her tech only', async () => {
@@ -75,7 +75,8 @@ describe('select visibility after seeding', () => {
 
   test('tech Dana sees only her two visits', async () => {
     assert.deepEqual(await visible(U.dana, ['profiles', 'homes', 'visits', 'visit_tasks', 'notices', 'plans', 'appliances']), {
-      profiles: 3, homes: 2, visits: 2, visit_tasks: 13, notices: 2, plans: 2, appliances: 0,
+      // 13 plan tasks + the "Client request" task on Priya's visit (Services v2).
+      profiles: 3, homes: 2, visits: 2, visit_tasks: 14, notices: 2, plans: 2, appliances: 0,
     });
   });
 
@@ -88,7 +89,7 @@ describe('select visibility after seeding', () => {
 
   test('office sees everything', async () => {
     assert.deepEqual(await visible(U.office, ALL), {
-      profiles: 10, homes: 5, appliances: 5, plans: 5, plan_builds: 0, visits: 5, visit_tasks: 34, visit_photos: 0,
+      profiles: 10, homes: 5, appliances: 5, plans: 5, plan_builds: 0, visits: 5, visit_tasks: 35, visit_photos: 0,
       reports: 0, notices: 5, vendors: 3, quote_requests: 0, quote_bookings: 0, bids: 0, ...REFERENCE,
     });
   });
@@ -246,8 +247,8 @@ describe('realtime publication', () => {
   test('includes every live table', async () => {
     const t = (await db.query(`select tablename from pg_publication_tables where pubname = 'supabase_realtime' order by 1`)).rows.map((r) => r.tablename);
     assert.deepEqual(t, [
-      'bids', 'notices', 'plan_builds', 'pricing_settings', 'quote_bookings', 'quote_requests', 'reports', 'task_defaults',
-      'visit_photos', 'visit_tasks', 'visits',
+      'bids', 'notices', 'plan_builds', 'pricing_settings', 'quote_bookings', 'quote_requests', 'reports',
+      'service_request_photos', 'service_requests', 'task_defaults', 'visit_photos', 'visit_tasks', 'visits',
     ]);
   });
 });
