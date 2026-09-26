@@ -1,10 +1,13 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { Pressable, View } from 'react-native';
+import { RequestPhotoThumbs } from '../../components/ServiceBits';
 import { EmptyState, ErrorState, LoadingState } from '../../components/States';
+import { roomLabel, titleRepeatsDescription, urgencyLabel } from '../../data/servicesModel';
 import { stopWhen, useTechVisit, useTechVisitActions } from '../../data/tech';
+import { REQUEST_TASK_KEY } from '../../data/visits';
 import { STATUS } from '../../theme/tokens';
 import { Pill, Row, Screen, TextLink } from '../../ui/controls';
-import { Display, Eyebrow, LqButton, LqCard, LqSectionTitle, Mono, Txt } from '../../ui/primitives';
+import { Display, Eyebrow, LqBadge, LqButton, LqCard, LqSectionTitle, Mono, Txt } from '../../ui/primitives';
 import { usePalette } from '../../ui/theme';
 
 const ADVANCE_LABEL = {
@@ -87,12 +90,14 @@ export default function TechJob() {
           const p = t.photos.length > 0;
           const uploading = act.photoBusy(t.id);
           const locked = !onsite || act.taskBusy(t.id);
+          const isRequest = t.key === REQUEST_TASK_KEY;
+          const req = t.request;
           return (
             <View
               key={t.id}
               style={{
                 flexDirection: 'row',
-                alignItems: 'center',
+                alignItems: isRequest ? 'flex-start' : 'center',
                 gap: 10,
                 paddingVertical: 10,
                 paddingHorizontal: 12,
@@ -104,7 +109,8 @@ export default function TechJob() {
               }}
             >
               <Pressable
-                testID={`task-${t.key}`}
+                // Several client requests can share a visit, so theirs carry the task id.
+                testID={isRequest ? `task-request-${t.id}` : `task-${t.key}`}
                 onPress={() => act.toggleTask(t)}
                 disabled={locked}
                 accessibilityRole="checkbox"
@@ -118,15 +124,37 @@ export default function TechJob() {
                   {d ? '✓' : ''}
                 </Txt>
               </Pressable>
-              <View style={{ flex: 1 }}>
-                <Txt size={13} weight="600">
-                  {t.name}
-                </Txt>
-                <Mono size={10.5} muted>
-                  {t.part} · {t.min} min
-                </Mono>
-              </View>
-              <View testID={`photo-${t.key}`} style={{ alignSelf: 'flex-start' }}>
+              {isRequest ? (
+                <View style={{ flex: 1, gap: 6 }} testID={req ? `client-request-${req.id}` : undefined}>
+                  <LqBadge tone="slate">Client request</LqBadge>
+                  <Txt size={13} weight="600">
+                    {req ? (titleRepeatsDescription(req.title, req.description) ? req.description : req.title) : t.name.replace(/^Client request:\s*/i, '')}
+                  </Txt>
+                  {req ? (
+                    <>
+                      {req.description && !titleRepeatsDescription(req.title, req.description) ? (
+                        <Txt size={12} muted style={{ lineHeight: 17 }}>
+                          {req.description}
+                        </Txt>
+                      ) : null}
+                      <Mono size={10.5} muted>
+                        {[roomLabel(req.room), `${urgencyLabel(req.urgency)}`].filter(Boolean).join(' · ')}
+                      </Mono>
+                      <RequestPhotoThumbs photos={req.photos} size={56} testIDPrefix={`client-request-photo-${req.id}-`} />
+                    </>
+                  ) : null}
+                </View>
+              ) : (
+                <View style={{ flex: 1 }}>
+                  <Txt size={13} weight="600">
+                    {t.name}
+                  </Txt>
+                  <Mono size={10.5} muted>
+                    {t.part} · {t.min} min
+                  </Mono>
+                </View>
+              )}
+              <View testID={isRequest ? `photo-request-${t.id}` : `photo-${t.key}`} style={{ alignSelf: 'flex-start' }}>
                 <Pill
                   label={uploading ? 'Uploading…' : p ? '✓ Photo' : '+ Photo'}
                   bg={p ? STATUS.forest : 'transparent'}
