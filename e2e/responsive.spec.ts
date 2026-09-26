@@ -22,13 +22,16 @@ const MAIN_SCREENS: ScreenCheck[] = [
   { path: '/homeowner/home', text: 'NEXT VISIT' },
   { path: '/homeowner/plan', text: 'Your year of care' },
   { path: '/homeowner/reports', text: 'Your first report arrives after the visit' },
-  { path: '/homeowner/services', text: 'Add-on services' },
+  { path: '/homeowner/services', text: 'Something not right?' },
+  { path: '/homeowner/request', text: "WHAT'S GOING ON?" },
+  { path: '/homeowner/request?kind=project&category=roof', text: 'Request an assessment · Roofing' },
   { path: '/tech', text: "Today's route" },
   { path: '/tech/job', text: 'NOTES FROM CLIENT' },
   { path: '/vendor', text: 'Quote requests' },
   { path: '/office/pricing', text: 'Tier pricing' },
   { path: '/office/dispatch', text: 'WEEK OF' },
   { path: '/office/quotes', text: 'BROKERED WORK' },
+  { path: '/office/requests', text: 'CLIENT REQUESTS' },
 ];
 
 const OFFICE_PAGES: ScreenCheck[] = MAIN_SCREENS.filter((s) => s.path.startsWith('/office'));
@@ -41,11 +44,11 @@ async function checkScreens(page: Page, screens: ScreenCheck[]) {
   }
 }
 
-/** The wide office layout: sidebar title, the three tabs and Reset demo data, left of the content. */
+/** The wide office layout: sidebar title, the four tabs and Reset demo data, left of the content. */
 async function expectSidebar(page: Page, path: string) {
   const title = page.getByText('PHP Office', { exact: true });
   await expect(title, `${path}: sidebar title`).toBeVisible();
-  for (const tab of ['Pricing', 'Dispatch', 'Add-on quotes']) {
+  for (const tab of ['Pricing', 'Dispatch', 'Add-on quotes', 'Requests']) {
     await expect(page.getByRole('tab', { name: tab }), `${path}: ${tab} tab`).toBeVisible();
   }
   await expect(page.getByTestId('office-reset'), `${path}: Reset demo data`).toBeVisible();
