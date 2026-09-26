@@ -114,15 +114,36 @@ export function Toggle({ on }: { on: boolean }) {
   );
 }
 
-export function Segmented<T extends string>({ options, value, onChange }: { options: readonly { key: T; label: string }[]; value: T; onChange: (v: T) => void }) {
+export function Segmented<T extends string>({
+  options,
+  value,
+  onChange,
+  testIDPrefix,
+  full,
+}: {
+  options: readonly { key: T; label: string }[];
+  value: T;
+  onChange: (v: T) => void;
+  /** Each option gets testID `${testIDPrefix}${key}` and is exposed as a tab. */
+  testIDPrefix?: string;
+  /** Stretch across the row, options sharing the width equally. */
+  full?: boolean;
+}) {
   const c = usePalette();
   return (
-    <View style={{ flexDirection: 'row', padding: 2, borderRadius: 10, backgroundColor: c.rule }}>
+    <View style={{ flexDirection: 'row', padding: 2, borderRadius: 10, backgroundColor: c.rule, alignSelf: full ? 'stretch' : undefined }}>
       {options.map((o) => {
         const on = o.key === value;
         return (
-          <Pressable key={o.key} onPress={() => onChange(o.key)} style={{ paddingVertical: 5, paddingHorizontal: 10, borderRadius: 8, backgroundColor: on ? c.paper : 'transparent' }}>
-            <Txt size={12} weight={on ? '600' : '400'}>
+          <Pressable
+            key={o.key}
+            onPress={() => onChange(o.key)}
+            testID={testIDPrefix ? `${testIDPrefix}${o.key}` : undefined}
+            accessibilityRole={testIDPrefix ? 'tab' : undefined}
+            aria-selected={testIDPrefix ? on : undefined}
+            style={{ paddingVertical: 5, paddingHorizontal: 10, borderRadius: 8, backgroundColor: on ? c.paper : 'transparent', flex: full ? 1 : undefined, alignItems: 'center' }}
+          >
+            <Txt size={12} weight={on ? '600' : '400'} numberOfLines={full ? 1 : undefined}>
               {o.label}
             </Txt>
           </Pressable>
@@ -132,12 +153,31 @@ export function Segmented<T extends string>({ options, value, onChange }: { opti
   );
 }
 
-/** Small filled pill button (Get quotes / Book / + Photo). */
-export function Pill({ label, bg, ink, onPress, border }: { label: string; bg: string; ink: string; onPress?: () => void; border?: string }) {
+/** Small filled pill button (Get quotes / Book / + Photo). `selected` marks a chosen chip for assistive tech. */
+export function Pill({
+  label,
+  bg,
+  ink,
+  onPress,
+  border,
+  testID,
+  selected,
+}: {
+  label: string;
+  bg: string;
+  ink: string;
+  onPress?: () => void;
+  border?: string;
+  testID?: string;
+  selected?: boolean;
+}) {
   return (
     <Pressable
       onPress={onPress}
       disabled={!onPress}
+      testID={testID}
+      accessibilityRole={testID ? 'button' : undefined}
+      aria-selected={selected}
       style={{ alignSelf: 'flex-start', paddingVertical: 5, paddingHorizontal: 10, borderRadius: 12, backgroundColor: bg, borderWidth: border ? 1 : 0, borderColor: border }}
     >
       <Txt size={11} weight="600" color={ink}>

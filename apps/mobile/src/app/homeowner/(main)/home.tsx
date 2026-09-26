@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { AppExitLink } from '../../../components/AppExitLink';
 import { EmptyState, ErrorState, LoadingState } from '../../../components/States';
 import { useConfirmVisit, useCurrentVisit, useMyHome, useRescheduleVisit } from '../../../data/homeowner';
-import type { VisitVM } from '../../../data/visits';
+import { REQUEST_TASK_KEY, type VisitVM } from '../../../data/visits';
 import { useMode } from '../../../lib/mode';
 import { STATUS } from '../../../theme/tokens';
 import { Avatar, Row, Screen } from '../../../ui/controls';
@@ -142,10 +142,12 @@ function VisitView({ header, visit, live }: { header: ReactNode; visit: VisitVM;
         ) : null}
         <View style={{ marginTop: 10 }}>
           {visit.tasks.map((t) => (
-            <Row key={t.id} style={{ paddingVertical: 6, borderTopWidth: 1, borderColor: c.rule }}>
-              <Txt size={13}>{t.name}</Txt>
+            <Row key={t.id} style={{ paddingVertical: 6, borderTopWidth: 1, borderColor: c.rule, gap: 10 }}>
+              <Txt size={13} style={{ flexShrink: 1 }}>
+                {t.name}
+              </Txt>
               <Mono size={11} muted>
-                {t.min} min
+                {t.key === REQUEST_TASK_KEY ? 'your request' : `${t.min} min`}
               </Mono>
             </Row>
           ))}
