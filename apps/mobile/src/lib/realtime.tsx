@@ -10,7 +10,7 @@ import { supabase } from './supabase';
 
 export { realtimeHealthy, useRealtimeStatus, type RealtimeStatus } from './realtimeStatus';
 
-/** Tables in the `supabase_realtime` publication (docs/LIVE_ARCHITECTURE.md §4). */
+/** Tables in the `supabase_realtime` publication (docs/LIVE_ARCHITECTURE.md §4, docs/SERVICES_V2.md). */
 export const REALTIME_TABLES = [
   'visits',
   'visit_tasks',
@@ -23,6 +23,8 @@ export const REALTIME_TABLES = [
   'visit_photos',
   'notices',
   'quote_bookings',
+  'service_requests',
+  'service_request_photos',
 ] as const;
 
 /**

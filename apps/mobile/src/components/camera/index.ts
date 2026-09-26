@@ -5,11 +5,14 @@
 //   <PlateViewfinder ref active busy overlay>{sample plate}</PlateViewfinder>
 //   <RemotePhoto path tag />     a stored photo in the report-tile frame
 
+import type * as NativeLocal from './localPhoto';
+import type * as WebLocal from './localPhoto.web';
 import type * as NativeCapture from './PhotoCapture';
 import type * as WebCapture from './PhotoCapture.web';
 import type * as NativeFinder from './PlateViewfinder';
 import type * as WebFinder from './PlateViewfinder.web';
 
+export { localPhotoUri } from './localPhoto';
 export { PhotoCaptureHost, capturePhoto, usePhotoCapture } from './PhotoCapture';
 export { PlateViewfinder } from './PlateViewfinder';
 export { RemotePhoto } from './RemotePhoto';
@@ -25,4 +28,5 @@ export type _PlatformParity = [
   Assert<Same<typeof NativeCapture.capturePhoto, typeof WebCapture.capturePhoto>>,
   Assert<Same<keyof typeof NativeCapture, keyof typeof WebCapture>>,
   Assert<Same<typeof NativeFinder.PlateViewfinder, typeof WebFinder.PlateViewfinder>>,
+  Assert<Same<typeof NativeLocal.localPhotoUri, typeof WebLocal.localPhotoUri>>,
 ];

@@ -10,6 +10,9 @@ export const MAX_EDGE = 1600;
 export const JPEG_QUALITY = 0.7;
 /** Private bucket for visit photos (docs/LIVE_ARCHITECTURE.md §4 Storage). */
 export const PHOTO_BUCKET = 'visit-photos';
+/** Private bucket for homeowner request photos (docs/SERVICES_V2.md, Storage). */
+export const REQUEST_PHOTO_BUCKET = 'request-photos';
+export type PhotoBucket = typeof PHOTO_BUCKET | typeof REQUEST_PHOTO_BUCKET;
 /** Signed URLs live for an hour… */
 export const SIGNED_URL_TTL_S = 3600;
 /** …and are re-signed about 5 minutes before they expire. */
@@ -104,6 +107,41 @@ export function photoPath(visitId: string, taskId: string, kind: string, now: nu
     if (!v || !SEGMENT_RE.test(v)) throw new Error(`Invalid photo ${name}: ${JSON.stringify(v)}`);
   }
   return `${visitId}/${taskId}/${kind}-${Math.floor(now)}.jpg`;
+}
+
+/**
+ * A random RFC 4122 v4 uuid: crypto.randomUUID when the platform has it,
+ * else crypto.getRandomValues, else Math.random (Hermes has neither by default).
+ */
+export function uuidv4(rand?: (n: number) => Uint8Array): string {
+  const c = (globalThis as { crypto?: { randomUUID?: () => string; getRandomValues?: (a: Uint8Array) => Uint8Array } }).crypto;
+  if (!rand && typeof c?.randomUUID === 'function') {
+    try {
+      return c.randomUUID();
+    } catch {
+      // Insecure context (plain http on a LAN): fall through.
+    }
+  }
+  const bytes = rand
+    ? rand(16)
+    : typeof c?.getRandomValues === 'function'
+      ? c.getRandomValues(new Uint8Array(16))
+      : Uint8Array.from({ length: 16 }, () => Math.floor(Math.random() * 256));
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
+/** `{request_id}/{uuid}.jpg`, the layout the `request-photos` policies expect. */
+export function requestPhotoPath(requestId: string, id: string = uuidv4()): string {
+  for (const [name, v] of [
+    ['requestId', requestId],
+    ['id', id],
+  ] as const) {
+    if (!v || !SEGMENT_RE.test(v)) throw new Error(`Invalid photo ${name}: ${JSON.stringify(v)}`);
+  }
+  return `${requestId}/${id}.jpg`;
 }
 
 // ---------------------------------------------------------------------------

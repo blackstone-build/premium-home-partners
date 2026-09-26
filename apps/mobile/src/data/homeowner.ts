@@ -35,7 +35,8 @@ import { useHomeNames, useTiers, useVisit, useYearOfCare as useDemoYearOfCareSto
 import { STATUS, type Tone } from '../theme/tokens';
 import { tierViewsFor, usePricingInputs, type PricingInputs, type TierView } from './pricing';
 import { ADD_ONS, APPLIANCES, SLOTS, TECH } from './seed';
-import { VISIT_SELECT, VISIT_TABLES, mapVisit, type VisitRow, type VisitVM } from './visits';
+import { useDemoRequestTasks } from './services';
+import { VISIT_SELECT, VISIT_TABLES, mapVisit, type TaskVM, type VisitRow, type VisitVM } from './visits';
 
 // ---------------------------------------------------------------------------
 // Shared result shape
@@ -389,6 +390,7 @@ function useDemoCurrentVisit(): HoQuery<VisitVM | null> {
   );
   const visit = useVisit();
   const { name, firstName, street, addr } = useHomeNames();
+  const requestTasks = useDemoRequestTasks();
   return useMemo(() => {
     const tech = {
       id: 'demo-tech',
@@ -412,24 +414,28 @@ function useDemoCurrentVisit(): HoQuery<VisitVM | null> {
       tierIndex: s.tier,
       tierName: TIERS[s.tier].name,
       tech,
-      tasks: visit.tasks.map((t) => ({
-        id: t.id,
-        key: t.id,
-        name: t.name,
-        short: t.short,
-        part: t.part,
-        min: t.min,
-        done: !!s.done[t.id],
-        photoKind: t.photo === 'clean' || t.photo === 'ice' ? 'after' : t.photo === 'drain' ? 'drain' : 'before',
-        photos: [],
-      })),
-      doneCount: visit.doneCount,
+      tasks: visit.tasks
+        .map(
+          (t): TaskVM => ({
+            id: t.id,
+            key: t.id,
+            name: t.name,
+            short: t.short,
+            part: t.part,
+            min: t.min,
+            done: !!s.done[t.id],
+            photoKind: t.photo === 'clean' || t.photo === 'ice' ? 'after' : t.photo === 'drain' ? 'drain' : 'before',
+            photos: [],
+          }),
+        )
+        .concat(requestTasks),
+      doneCount: visit.doneCount + requestTasks.filter((t) => t.done).length,
       notices: { d7: true, h48: s.reminders, dayOf: s.tech !== 'scheduled', report: s.report },
       reportId: s.report ? 'demo-report' : null,
       offeredSlots: [],
     };
     return { data: vm, isLoading: false, error: null, refetch: noop };
-  }, [s, visit, name, firstName, street, addr]);
+  }, [s, visit, name, firstName, street, addr, requestTasks]);
 }
 
 /** The next visit (or today's, until the day ends), or null when none is booked. */
