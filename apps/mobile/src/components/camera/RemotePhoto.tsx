@@ -3,6 +3,7 @@ import { Image, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-n
 import { PhotoBox } from '../../ui/controls';
 import { Mono } from '../../ui/primitives';
 import { usePalette } from '../../ui/theme';
+import { PHOTO_BUCKET, type PhotoBucket } from './photoUtils';
 import { useSignedPhotoUrl } from './signedUrls';
 
 /**
@@ -19,9 +20,15 @@ export function RemotePhoto({
   colors,
   style,
   testID,
+  bucket = PHOTO_BUCKET,
+  uri,
 }: {
-  /** Storage path in `visit-photos`, e.g. from TaskVM.photos[i].path. Null shows the placeholder. */
+  /** Storage path in `bucket`, e.g. from TaskVM.photos[i].path. Null shows the placeholder. */
   path: string | null | undefined;
+  /** Storage bucket of `path` (default `visit-photos`). */
+  bucket?: PhotoBucket;
+  /** A ready URL (already signed, or a local file/data URI in demo mode). Used instead of signing `path`. */
+  uri?: string | null;
   height?: number;
   radius?: number;
   /** Chip text, e.g. 'after' (shown uppercase). */
@@ -33,7 +40,8 @@ export function RemotePhoto({
   testID?: string;
 }) {
   const c = usePalette();
-  const url = useSignedPhotoUrl(path);
+  const signed = useSignedPhotoUrl(uri ? null : path, bucket);
+  const url = uri || signed;
   const [failed, setFailed] = useState<string | null>(null);
   const show = url !== null && failed !== url;
   return (

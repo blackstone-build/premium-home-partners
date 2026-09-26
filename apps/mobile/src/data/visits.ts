@@ -4,6 +4,7 @@
 
 import { TASKS, TIERS, type LaborMinutes, type PhotoKind } from '@php/pricing';
 import { fmtDay, fmtDuration, fmtWindow } from '../lib/dates';
+import type { RequestPhotoVM, Room, Urgency } from './servicesModel';
 
 export type VisitStatus = 'scheduled' | 'enroute' | 'onsite' | 'done';
 export type TaskPhotoKind = 'before' | 'after' | 'drain';
@@ -25,7 +26,25 @@ export interface TaskVM {
   /** Which photo the checklist asks for: dirty → before, clean/ice → after, drain → drain. */
   photoKind: TaskPhotoKind;
   photos: TaskPhotoVM[];
+  /**
+   * A client request this task was added for (`task_key 'request'`,
+   * visit_tasks.request_id), once its details have loaded. Tech only.
+   */
+  request?: TaskRequestVM | null;
 }
+
+/** The client request behind a checklist task (docs/SERVICES_V2.md, Tech). */
+export interface TaskRequestVM {
+  id: string;
+  title: string;
+  description: string;
+  room: Room | null;
+  urgency: Urgency;
+  photos: RequestPhotoVM[];
+}
+
+/** task_key of the visit_task office_route_request adds for a client request. */
+export const REQUEST_TASK_KEY = 'request';
 
 export interface TechVM {
   id: string;

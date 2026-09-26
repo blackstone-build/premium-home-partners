@@ -42,9 +42,12 @@ const planArgs = (homeId, schedule) => ({
   p_home: homeId, p_tier: 'recommended', p_monthly: 116.36, p_annual: 1396.34, p_materials: 606.67, p_labor: 789.67, p_schedule: schedule,
 });
 
-/** Visit tasks whose key or name doesn't come from task_defaults (should always be zero). */
+/**
+ * Plan tasks whose key or name doesn't come from task_defaults (should always
+ * be zero). Client-request tasks (Services v2, request_id set) are the office's, not the plan's.
+ */
 const foreignTasks = () => count(db, 'visit_tasks t',
-  'not exists (select 1 from task_defaults d where d.task_key = t.task_key and d.name = t.name)');
+  't.request_id is null and not exists (select 1 from task_defaults d where d.task_key = t.task_key and d.name = t.name)');
 
 describe('fix 1: booking money lives in quote_bookings (owner + office only)', () => {
   let lawn;
@@ -190,6 +193,8 @@ describe('fix 1: upgrading a database that already has bookings', () => {
     const before = await counts(old);
     await applyMigration(old, REVIEW);
     assert.deepEqual(await counts(old), before);
+    // The later migrations (Birmingham addresses, Services v2, ...) bring it to today's scenario.
+    for (const f of MIGRATIONS.filter((m) => m > REVIEW)) await applyMigration(old, f);
     await old.exec('select public.seed_demo()');
     assert.deepEqual(await counts(old), SEED_COUNTS);
   });

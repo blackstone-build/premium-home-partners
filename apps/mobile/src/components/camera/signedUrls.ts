@@ -1,34 +1,43 @@
-// Signed URLs for private visit photos: createSignedUrls with a 1 h expiry,
-// cached per path until ~5 min before expiry, batched per tick so a grid of
-// tiles makes one request.
+// Signed URLs for private photos: createSignedUrls with a 1 h expiry, cached
+// per path until ~5 min before expiry, batched per tick so a grid of tiles
+// makes one request. One loader per bucket (`visit-photos`, `request-photos`).
 
 import { useEffect, useState } from 'react';
 import { FriendlyError, friendlyError } from '../../lib/errors';
 import { supabase } from '../../lib/supabase';
-import { PHOTO_BUCKET, SIGNED_URL_TTL_S, createSignedUrlLoader } from './photoUtils';
+import { PHOTO_BUCKET, SIGNED_URL_TTL_S, createSignedUrlLoader, type PhotoBucket, type SignedUrlLoader } from './photoUtils';
 
-const loader = createSignedUrlLoader(async (paths) => {
-  if (!supabase) return {};
-  let res: Awaited<ReturnType<ReturnType<typeof supabase.storage.from>['createSignedUrls']>>;
-  try {
-    res = await supabase.storage.from(PHOTO_BUCKET).createSignedUrls(paths, SIGNED_URL_TTL_S);
-  } catch (e) {
-    throw new FriendlyError(friendlyError(e));
+const loaders = new Map<PhotoBucket, SignedUrlLoader>();
+
+function loaderFor(bucket: PhotoBucket): SignedUrlLoader {
+  let l = loaders.get(bucket);
+  if (!l) {
+    l = createSignedUrlLoader(async (paths) => {
+      if (!supabase) return {};
+      let res: Awaited<ReturnType<ReturnType<typeof supabase.storage.from>['createSignedUrls']>>;
+      try {
+        res = await supabase.storage.from(bucket).createSignedUrls(paths, SIGNED_URL_TTL_S);
+      } catch (e) {
+        throw new FriendlyError(friendlyError(e));
+      }
+      if (res.error) throw new FriendlyError(friendlyError(res.error));
+      const out: Record<string, string> = {};
+      for (const r of res.data) if (r.path && r.signedUrl && !r.error) out[r.path] = r.signedUrl;
+      return out;
+    });
+    loaders.set(bucket, l);
   }
-  if (res.error) throw new FriendlyError(friendlyError(res.error));
-  const out: Record<string, string> = {};
-  for (const r of res.data) if (r.path && r.signedUrl && !r.error) out[r.path] = r.signedUrl;
-  return out;
-});
+  return l;
+}
 
-/** Signed URLs for many storage paths (bucket `visit-photos`). Paths that can't be signed are left out. */
-export function getSignedUrls(paths: readonly string[]): Promise<Record<string, string>> {
-  return loader.getMany(paths);
+/** Signed URLs for many storage paths (default bucket `visit-photos`). Paths that can't be signed are left out. */
+export function getSignedUrls(paths: readonly string[], bucket: PhotoBucket = PHOTO_BUCKET): Promise<Record<string, string>> {
+  return loaderFor(bucket).getMany(paths);
 }
 
 /** One signed URL, or null when the path can't be signed (e.g. the object is gone). */
-export function getSignedUrl(path: string): Promise<string | null> {
-  return loader.get(path);
+export function getSignedUrl(path: string, bucket: PhotoBucket = PHOTO_BUCKET): Promise<string | null> {
+  return loaderFor(bucket).get(path);
 }
 
 /**
@@ -36,7 +45,8 @@ export function getSignedUrl(path: string): Promise<string | null> {
  * when it can't be signed. Retries with backoff while the server is
  * unreachable, and re-signs shortly before the URL expires.
  */
-export function useSignedPhotoUrl(path: string | null | undefined): string | null {
+export function useSignedPhotoUrl(path: string | null | undefined, bucket: PhotoBucket = PHOTO_BUCKET): string | null {
+  const loader = loaderFor(bucket);
   const [state, setState] = useState<{ path: string | null | undefined; url: string | null }>(() => ({
     path,
     url: path ? loader.peek(path) : null,
@@ -68,7 +78,7 @@ export function useSignedPhotoUrl(path: string | null | undefined): string | nul
       alive = false;
       if (timer) clearTimeout(timer);
     };
-  }, [path]);
+  }, [path, loader]);
 
   if (!path) return null;
   return state.path === path ? state.url : loader.peek(path);

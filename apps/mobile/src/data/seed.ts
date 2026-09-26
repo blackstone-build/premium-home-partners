@@ -23,14 +23,72 @@ export interface AddOn {
   base: number;
 }
 
-export const ADD_ONS: AddOn[] = [
-  { id: 'lawn', name: 'Lawn care', sub: 'Weekly mow, edge and blow', base: 65 },
-  { id: 'land', name: 'Landscaping', sub: 'Beds, mulch, seasonal color', base: 1400 },
-  { id: 'win', name: 'Window washing', sub: 'Inside and out, screens', base: 420 },
-  { id: 'press', name: 'Pressure washing', sub: 'Driveway, walks, siding', base: 340 },
-  { id: 'lights', name: 'Holiday lights', sub: 'Roofline install and removal', base: 1150 },
-  { id: 'tree', name: 'Tree service', sub: 'Trim, removal, stump grind', base: 780 },
+export type ServiceLine = 'maintenance' | 'seasonal' | 'contracted';
+export type HandledBy = 'network' | 'php';
+
+/** One row of `service_categories` (docs/SERVICES_V2.md, Catalog). */
+export interface ServiceCategory {
+  id: string;
+  line: ServiceLine;
+  /** `network`: vetted partners quote it. `php`: PHP does it under its GC license. */
+  handledBy: HandledBy;
+  name: string;
+  sub: string;
+  /** Typical price for network work; null for contracted (priced per project). */
+  base: number | null;
+  /** Months (1–12) the service is in season; null means year-round. */
+  seasonMonths: number[] | null;
+  sort: number;
+}
+
+const cat = (line: ServiceLine, sort: number, id: string, name: string, sub: string, base: number | null, seasonMonths: number[] | null = null): ServiceCategory => ({
+  id,
+  line,
+  handledBy: line === 'contracted' ? 'php' : 'network',
+  name,
+  sub,
+  base,
+  seasonMonths,
+  sort,
+});
+
+/** The full catalog, as seeded by seed_demo() and used by the offline demo. */
+export const SERVICE_CATALOG: ServiceCategory[] = [
+  cat('maintenance', 1, 'lawn', 'Lawn care', 'Weekly mow, edge and blow', 65),
+  cat('maintenance', 2, 'land', 'Landscaping', 'Beds, mulch, seasonal color', 1400),
+  cat('maintenance', 3, 'win', 'Window washing', 'Inside and out, screens', 420),
+  cat('maintenance', 4, 'press', 'Pressure washing', 'Driveway, walks, siding', 340),
+  cat('maintenance', 5, 'gutter', 'Gutter cleaning', 'Clean, flush, check downspouts', 225),
+  cat('maintenance', 6, 'pest', 'Pest control', 'Quarterly, inside and out', 120),
+  cat('maintenance', 7, 'carpet', 'Carpet & upholstery', 'Deep clean, spot treatment', 280),
+  cat('maintenance', 8, 'tree', 'Tree service', 'Trim, removal, stump grind', 780),
+  cat('seasonal', 1, 'lights', 'Holiday lights', 'Roofline install and removal', 1150, [10, 11, 12]),
+  cat('seasonal', 2, 'leaves', 'Leaf removal', 'Beds, lawn and gutters', 260, [10, 11, 12]),
+  cat('seasonal', 3, 'hvac_tune', 'HVAC tune-up', 'Spring cooling / fall heating check', 160, [3, 4, 9, 10]),
+  cat('seasonal', 4, 'winterize', 'Winterize', 'Irrigation blow-out, hose bibs', 150, [10, 11]),
+  cat('seasonal', 5, 'chimney', 'Chimney sweep', 'Sweep and safety inspection', 240, [9, 10, 11]),
+  cat('seasonal', 6, 'pool_open', 'Pool opening', 'Uncover, balance, start up', 325, [3, 4, 5]),
+  cat('seasonal', 7, 'pool_close', 'Pool closing', 'Winterize and cover', 325, [9, 10]),
+  cat('seasonal', 8, 'storm', 'Storm prep', 'Generator service, tie-downs', 210, [3, 4, 5, 6]),
+  cat('contracted', 1, 'roof', 'Roofing', 'Inspections, repairs, replacement', null),
+  cat('contracted', 2, 'pool', 'Pools', 'Repair, resurfacing, equipment', null),
+  cat('contracted', 3, 'kitchen_bath', 'Kitchen & bath refresh', 'Updates without a full gut', null),
+  cat('contracted', 4, 'cabinets', 'Cabinet refinishing', 'Paint, reface, new hardware', null),
+  cat('contracted', 5, 'floors', 'Flooring', 'Refinish, repair, replace', null),
+  cat('contracted', 6, 'paint', 'Painting', 'Interior and exterior', null),
+  cat('contracted', 7, 'outdoor', 'Decks, patios & fences', 'Build, repair, restain', null),
+  cat('contracted', 8, 'doors_windows', 'Doors & windows', 'Repair and replacement', null),
+  cat('contracted', 9, 'carpentry', 'Drywall, trim & carpentry', 'Patches, built-ins, trim', null),
+  cat('contracted', 10, 'project', 'Something bigger', 'Remodels, additions, anything else', null),
 ];
+
+/** Network (quote-flow) services: Maintenance and Seasonal. Vendors cover all of them. */
+export const ADD_ONS: AddOn[] = SERVICE_CATALOG.filter((c) => c.handledBy === 'network').map((c) => ({
+  id: c.id,
+  name: c.name,
+  sub: c.sub,
+  base: c.base ?? 0,
+}));
 
 /** Other network vendors that answer each request automatically in demo mode. */
 export const OTHER_VENDORS = [

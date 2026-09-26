@@ -1,6 +1,8 @@
 // fanout-quote: after a homeowner requests an add-on quote, two network vendors
 // bid automatically, so the homeowner sees competing bids next to the real
-// vendor's. The client calls it fire-and-forget after request_quote.
+// vendor's. The client calls it fire-and-forget after request_quote, and the
+// office client after office_route_request routes a "Show us" request to
+// partner quotes (docs/SERVICES_V2.md): the home's owner or the office may call it.
 //
 // POST { request_id } → 202 { ok: true, request_id }
 // then, in the background:
@@ -12,8 +14,8 @@
 import 'jsr:@supabase/functions-js@2/edge-runtime.d.ts';
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { MSG, allowMethods, background, errorText, fail, isUuid, json, preflight, readJsonObject, sleep } from '../_shared/http.ts';
-import { NETWORK_VENDORS, addDays, chicagoToday, networkBidPrice, skipReason, type NetworkVendor } from '../_shared/quote.ts';
-import { adminClient, requireCaller } from '../_shared/supabase.ts';
+import { NETWORK_VENDORS, addDays, chicagoToday, mayFanOut, networkBidPrice, skipReason, type NetworkVendor } from '../_shared/quote.ts';
+import { adminClient, requireCaller, type Caller } from '../_shared/supabase.ts';
 
 interface VendorRow {
   id: string;
@@ -43,7 +45,9 @@ Deno.serve(async (req) => {
     if (!request) return fail(404, "We couldn't find that request.", 'not_found');
     const homes = (request as { homes: { owner_id: string } | { owner_id: string }[] | null }).homes;
     const ownerId = Array.isArray(homes) ? homes[0]?.owner_id : homes?.owner_id;
-    if (ownerId !== caller.userId) return fail(403, MSG.forbidden, 'forbidden');
+    // The office routes client requests to partner quotes on the owner's behalf.
+    const callerRole = ownerId === caller.userId ? null : await roleOf(caller);
+    if (!mayFanOut({ ownerId, callerId: caller.userId, callerRole })) return fail(403, MSG.forbidden, 'forbidden');
 
     background(fanOut(requestId));
     return json({ ok: true, request_id: requestId }, 202);
@@ -52,6 +56,13 @@ Deno.serve(async (req) => {
     return fail(500, MSG.server, 'server');
   }
 });
+
+/** The caller's role, read through their own JWT (every user reads their own profile). */
+async function roleOf(caller: Caller): Promise<string | null> {
+  const { data, error } = await caller.db.from('profiles').select('role').eq('id', caller.userId).maybeSingle<{ role: string | null }>();
+  if (error) throw error;
+  return data?.role ?? null;
+}
 
 async function fanOut(requestId: string): Promise<void> {
   const db = adminClient();

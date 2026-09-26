@@ -45,6 +45,83 @@ export const SEED = {
 export const FILTER_JPG = join(ROOT, 'e2e/fixtures/filter.jpg');
 
 // ---------------------------------------------------------------------------
+// Services v2 catalog and seed (docs/SERVICES_V2.md; seed_demo() in
+// supabase/migrations/20260926000000_services_v2.sql)
+// ---------------------------------------------------------------------------
+
+export type ServiceLine = 'maintenance' | 'seasonal' | 'contracted';
+
+/** service_categories ids by line, in sort order. Maintenance and seasonal are network; contracted is PHP. */
+export const SERVICE_LINES: Record<ServiceLine, readonly string[]> = {
+  maintenance: ['lawn', 'land', 'win', 'press', 'gutter', 'pest', 'carpet', 'tree'],
+  seasonal: ['lights', 'leaves', 'hvac_tune', 'winterize', 'chimney', 'pool_open', 'pool_close', 'storm'],
+  contracted: ['roof', 'pool', 'kitchen_bath', 'cabinets', 'floors', 'paint', 'outdoor', 'doors_windows', 'carpentry', 'project'],
+};
+
+/** service_categories.name for every id. */
+export const SERVICE_NAMES: Record<string, string> = {
+  lawn: 'Lawn care', land: 'Landscaping', win: 'Window washing', press: 'Pressure washing', gutter: 'Gutter cleaning',
+  pest: 'Pest control', carpet: 'Carpet & upholstery', tree: 'Tree service',
+  lights: 'Holiday lights', leaves: 'Leaf removal', hvac_tune: 'HVAC tune-up', winterize: 'Winterize', chimney: 'Chimney sweep',
+  pool_open: 'Pool opening', pool_close: 'Pool closing', storm: 'Storm prep',
+  roof: 'Roofing', pool: 'Pools', kitchen_bath: 'Kitchen & bath refresh', cabinets: 'Cabinet refinishing', floors: 'Flooring',
+  paint: 'Painting', outdoor: 'Decks, patios & fences', doors_windows: 'Doors & windows', carpentry: 'Drywall, trim & carpentry',
+  project: 'Something bigger',
+};
+
+/** service_categories.season_months (Birmingham calendar, 1–12) for the seasonal line. */
+export const SEASON_MONTHS: Record<string, readonly number[]> = {
+  lights: [10, 11, 12], leaves: [10, 11, 12], hvac_tune: [3, 4, 9, 10], winterize: [10, 11],
+  chimney: [9, 10, 11], pool_open: [3, 4, 5], pool_close: [9, 10], storm: [3, 4, 5, 6],
+};
+
+/** This month (1–12) in America/Chicago. */
+export function chicagoMonth(): number {
+  return Number(new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', month: 'numeric' }).format(new Date()));
+}
+
+/** Seasonal ids that should show the "In season" badge in `month` (default: this month in Chicago), in sort order. */
+export function inSeason(month: number = chicagoMonth()): string[] {
+  return SERVICE_LINES.seasonal.filter((id) => SEASON_MONTHS[id]?.includes(month));
+}
+
+/**
+ * The requests seed_demo() creates, one per stage. Elena has none, so specs
+ * create hers live. Ids are fixed (f = service request, numbered like the
+ * homeowner's user id).
+ */
+export const SERVICES_SEED = {
+  users: {
+    david: 'a0000000-0000-4000-8000-000000000007',
+    whitfields: 'a0000000-0000-4000-8000-000000000008',
+    priya: 'a0000000-0000-4000-8000-000000000009',
+  },
+  requests: {
+    /** Project, roof. Assessment tomorrow 10:00 Chicago. */
+    davidRoof: {
+      id: 'f0000000-0000-4000-8000-000000000007', kind: 'project', category: 'roof',
+      title: 'Roof inspection after the last storm', status: 'assessment_scheduled',
+    },
+    /** Project, pool. Estimate $18,500–$22,000 waiting for approval. */
+    whitfieldsPool: {
+      id: 'f0000000-0000-4000-8000-000000000008', kind: 'project', category: 'pool',
+      title: 'Pool resurfacing', status: 'estimate_sent', estimateLow: 18500, estimateHigh: 22000,
+    },
+    /** "Show us" photo request routed to Priya's visit (tomorrow, Dana), with its checklist task. */
+    priyaDoor: {
+      id: 'f0000000-0000-4000-8000-000000000009', kind: 'photo', category: null,
+      title: "Back door sticks and won't latch", room: 'kitchen', urgency: 'soon', status: 'scheduled',
+      visitId: 'd0000000-0000-4000-8000-000000000009',
+    },
+  },
+  /** The checklist row office_route_request adds for route 'visit': name = namePrefix + request title. */
+  requestTask: { taskKey: 'request', namePrefix: 'Client request: ' },
+  /** Private bucket; paths are {request_id}/{uuid}.jpg. At most maxPhotos per request. */
+  photoBucket: 'request-photos',
+  maxPhotos: 4,
+} as const;
+
+// ---------------------------------------------------------------------------
 // Devices
 // ---------------------------------------------------------------------------
 

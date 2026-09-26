@@ -13,7 +13,7 @@ import { useSession } from '../lib/auth';
 import { addDays, chicagoDate, fmtTime, startOfDayChicagoIso, todayChicago } from '../lib/dates';
 import { friendlyError } from '../lib/errors';
 import { useMode } from '../lib/mode';
-import { uploadVisitPhoto, type CapturedPhoto } from '../lib/photos';
+import { REQUEST_PHOTO_BUCKET, getSignedUrls, uploadVisitPhoto, type CapturedPhoto } from '../lib/photos';
 import { queryClient } from '../lib/queryClient';
 import { invalidateTables } from '../lib/realtime';
 import { rpc, unwrap } from '../lib/rpc';
@@ -23,7 +23,20 @@ import { useApp } from '../store/app';
 import { useHomeNames, useTiers, useVisit } from '../store/derived';
 import { usePricingInputs } from './pricing';
 import { OTHER_JOBS, TECH } from './seed';
-import { VISIT_SELECT, VISIT_TABLES, mapVisit, type TaskPhotoKind, type TaskVM, type VisitRow, type VisitStatus, type VisitVM } from './visits';
+import { useDemoRequestTasks } from './services';
+import { REQUEST_SELECT, mapServiceRequest, type ServiceRequestRow } from './servicesModel';
+import {
+  REQUEST_TASK_KEY,
+  VISIT_SELECT,
+  VISIT_TABLES,
+  mapVisit,
+  type TaskPhotoKind,
+  type TaskRequestVM,
+  type TaskVM,
+  type VisitRow,
+  type VisitStatus,
+  type VisitVM,
+} from './visits';
 
 // ---------------------------------------------------------------------------
 // Shapes
@@ -157,6 +170,42 @@ async function fetchVisit(id: string): Promise<VisitRow | null> {
   return (unwrap(res as Res) as VisitRow | null) ?? null;
 }
 
+/** Tables the client-request details read. */
+const TASK_REQUEST_TABLES = ['visit_tasks', 'service_requests', 'service_request_photos'];
+
+/**
+ * The client requests behind a visit's `request` tasks, by task id: title,
+ * description, room, urgency and photos (signed `request-photos` URLs, best
+ * effort). RLS lets the tech read requests linked to a task on their visits.
+ */
+async function fetchTaskRequests(taskIds: readonly string[]): Promise<Record<string, TaskRequestVM>> {
+  const sb = requireSupabase();
+  const links = unwrap<{ id: string; request_id: string | null }[] | null>(await sb.from('visit_tasks').select('id,request_id').in('id', [...taskIds])) ?? [];
+  const reqIds = [...new Set(links.map((l) => l.request_id).filter((x): x is string => !!x))];
+  if (!reqIds.length) return {};
+  const rows = (unwrap((await sb.from('service_requests').select(REQUEST_SELECT).in('id', reqIds)) as Res) as ServiceRequestRow[] | null) ?? [];
+  const paths = rows.flatMap((r) => (r.service_request_photos ?? []).map((p) => p.path).filter((p): p is string => !!p));
+  let signed: Record<string, string> = {};
+  try {
+    signed = paths.length ? await getSignedUrls(paths, REQUEST_PHOTO_BUCKET) : {};
+  } catch {
+    // The thumbnails sign themselves (RemotePhoto) when the batch can't.
+  }
+  const byId = new Map(rows.map((r) => [r.id, mapServiceRequest(r, { signed })]));
+  const out: Record<string, TaskRequestVM> = {};
+  for (const l of links) {
+    const r = l.request_id ? byId.get(l.request_id) : undefined;
+    if (r) out[l.id] = { id: r.id, title: r.title, description: r.description, room: r.room, urgency: r.urgency, photos: r.photos };
+  }
+  return out;
+}
+
+/** Attach loaded client-request details to their tasks. */
+function withRequests(v: VisitVM, reqs: Record<string, TaskRequestVM> | undefined): VisitVM {
+  if (!reqs || !v.tasks.some((t) => reqs[t.id])) return v;
+  return { ...v, tasks: v.tasks.map((t) => (reqs[t.id] ? { ...t, request: reqs[t.id] } : t)) };
+}
+
 /** Labor minutes for durations; defaults if pricing can't load (only the minute labels depend on it). */
 function useMins(): LaborMinutes | null {
   const p = usePricingInputs();
@@ -252,11 +301,23 @@ function useLiveTechVisit(idParam: string | undefined): TechVisitResult {
     },
   });
   const row = q.data;
+  // Tasks the office added for a client request: load the request's description and photos.
+  const requestTaskIds = useMemo(
+    () => (row?.visit_tasks ?? []).filter((t) => t.task_key === REQUEST_TASK_KEY).map((t) => t.id).sort(),
+    [row],
+  );
+  const reqQ = useQuery({
+    queryKey: ['tech', 'visitRequests', id ?? null, requestTaskIds.join(',')],
+    queryFn: () => fetchTaskRequests(requestTaskIds),
+    enabled: requestTaskIds.length > 0,
+    meta: { tables: TASK_REQUEST_TABLES },
+  });
+  const reqs = reqQ.data;
   const data = useMemo<VisitVM | null | undefined>(() => {
     if (row === null) return null;
     if (!row || !mins) return undefined;
-    return withPending(mapVisit(row, mins), pending);
-  }, [row, mins, pending]);
+    return withRequests(withPending(mapVisit(row, mins), pending), reqs);
+  }, [row, mins, pending, reqs]);
 
   // An empty route with no id means there's nothing to open.
   if (!idParam && fallbackId === null) {
@@ -408,8 +469,10 @@ function useDemoVisitVM(): VisitVM {
   const s = useApp(
     useShallow((x) => ({ tech: x.tech, pets: x.pets, tier: x.tier, confirmed: x.confirmed, done: x.done, shots: x.shots, report: x.report, reminders: x.reminders })),
   );
+  // Client requests the office added to this visit (Services v2).
+  const requestTasks = useDemoRequestTasks();
   return useMemo<VisitVM>(() => {
-    const tasks: TaskVM[] = visit.tasks.map((t) => ({
+    const planTasks: TaskVM[] = visit.tasks.map((t) => ({
       id: t.id,
       key: t.id,
       name: t.name,
@@ -420,6 +483,7 @@ function useDemoVisitVM(): VisitVM {
       photoKind: DEMO_PHOTO_KIND[t.photo],
       photos: s.shots[t.id] ? [{ id: `demo-${t.id}`, kind: DEMO_PHOTO_KIND[t.photo], path: '' }] : [],
     }));
+    const tasks = planTasks.concat(requestTasks);
     return {
       id: DEMO_VISIT_ID,
       homeId: 'demo-home',
@@ -435,12 +499,12 @@ function useDemoVisitVM(): VisitVM {
       tierName: cur.name,
       tech: { id: 'demo-tech', name: TECH.name, firstName: TECH.name.split(' ')[0], initials: TECH.initials, title: TECH.title, van: TECH.van },
       tasks,
-      doneCount: visit.doneCount,
+      doneCount: tasks.filter((t) => t.done).length,
       notices: { d7: true, h48: s.reminders, dayOf: s.tech !== 'scheduled', report: s.report },
       reportId: s.report ? 'demo-report' : null,
       offeredSlots: [],
     };
-  }, [visit, cur.name, name, firstName, street, addr, s]);
+  }, [visit, cur.name, name, firstName, street, addr, s, requestTasks]);
 }
 
 /** The prototype's two other stops, as dimmed, read-only visits. */

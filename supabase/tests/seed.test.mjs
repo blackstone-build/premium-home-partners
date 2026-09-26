@@ -127,7 +127,8 @@ describe('scenario', () => {
 
   test('plans and baselines for the other clients', async () => {
     const p = await rows(db, `
-      select h.owner_id, pl.tier, pl.monthly::text, (select count(*)::int from visit_tasks t join visits v on v.id = t.visit_id where v.home_id = h.id) as tasks
+      select h.owner_id, pl.tier, pl.monthly::text,
+             (select count(*)::int from visit_tasks t join visits v on v.id = t.visit_id where v.home_id = h.id and t.request_id is null) as tasks
       from plans pl join homes h on h.id = pl.home_id order by h.owner_id`);
     assert.deepEqual(p, [
       { owner_id: U.elena, tier: 'recommended', monthly: '137.58', tasks: 7 },
@@ -170,14 +171,17 @@ describe('scenario', () => {
     ]);
   });
 
-  test('vendors: Evergreen (Sam), Summit, Clearview — vetted, all six categories', async () => {
+  test('vendors: Evergreen (Sam), Summit, Clearview — vetted, every network category', async () => {
     const v = await rows(db, 'select id, profile_id, company, rating::text, vetted, categories from vendors order by id');
     assert.deepEqual(v.map((x) => [x.id, x.profile_id, x.company, x.rating, x.vetted]), [
       [VENDOR.evergreen, U.sam, 'Evergreen Outdoor Co.', '4.9', true],
       [VENDOR.summit, null, 'Summit Pro Services', '4.8', true],
       [VENDOR.clearview, null, 'Clearview & Sons', '4.7', true],
     ]);
-    for (const x of v) assert.deepEqual([...x.categories].sort(), ['land', 'lawn', 'lights', 'press', 'tree', 'win']);
+    // Services v2: the 16 maintenance and seasonal categories, never a contracted one.
+    const network = ['carpet', 'chimney', 'gutter', 'hvac_tune', 'land', 'lawn', 'leaves', 'lights', 'pest', 'pool_close', 'pool_open',
+      'press', 'storm', 'tree', 'win', 'winterize'];
+    for (const x of v) assert.deepEqual([...x.categories].sort(), network);
   });
 
   test('pricing defaults', async () => {

@@ -44,6 +44,19 @@ export function addDays(ymd: string, n: number): string {
   return dt.toISOString().slice(0, 10);
 }
 
+/**
+ * Who may start the network bids for a quote request: the home's owner (after
+ * request_quote), or the office (after office_route_request routes a "Show us"
+ * request to partner quotes, docs/SERVICES_V2.md).
+ */
+export function mayFanOut(opts: {
+  ownerId: string | null | undefined;
+  callerId: string;
+  callerRole: string | null | undefined;
+}): boolean {
+  return (!!opts.ownerId && opts.ownerId === opts.callerId) || opts.callerRole === 'office';
+}
+
 export type SkipReason = 'not_open' | 'already_bid' | 'no_vendor' | 'no_price' | null;
 
 /** Why a network vendor should not bid right now, or null to bid. */

@@ -6,6 +6,7 @@ import {
   JPEG_QUALITY,
   MAX_EDGE,
   PHOTO_BUCKET,
+  REQUEST_PHOTO_BUCKET,
   SignedUrlCache,
   base64ToArrayBuffer,
   base64ToBytes,
@@ -14,7 +15,9 @@ import {
   isDuplicateUploadError,
   isRetryableUploadError,
   photoPath,
+  requestPhotoPath,
   stripDataUrl,
+  uuidv4,
 } from '../src/components/camera/photoUtils';
 
 test('constants match the contract', () => {
@@ -80,6 +83,26 @@ test('photoPath follows {visit_id}/{task_id}/{kind}-{epoch_ms}.jpg', () => {
   assert.throws(() => photoPath('', task, 'after'));
   assert.throws(() => photoPath('a/b', task, 'after'));
   assert.throws(() => photoPath(visit, task, '../after'));
+});
+
+test('request photos go to request-photos at {request_id}/{uuid}.jpg', () => {
+  assert.equal(REQUEST_PHOTO_BUCKET, 'request-photos');
+  const req = 'c0000000-0000-4000-8000-000000000042';
+  assert.equal(requestPhotoPath(req, '11111111-2222-4333-8444-555555555555'), `${req}/11111111-2222-4333-8444-555555555555.jpg`);
+  const p = requestPhotoPath(req);
+  assert.match(p, new RegExp(`^${req}/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\\.jpg$`));
+  assert.notEqual(requestPhotoPath(req), requestPhotoPath(req));
+  assert.throws(() => requestPhotoPath('', 'x'));
+  assert.throws(() => requestPhotoPath('a/b', 'x'));
+  assert.throws(() => requestPhotoPath(req, '../x'));
+});
+
+test('uuidv4 sets the version and variant bits, with or without crypto', () => {
+  const v4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+  assert.match(uuidv4(), v4);
+  // A fixed byte source (as on Hermes without crypto): all 0xff still yields a valid v4 uuid.
+  assert.equal(uuidv4((n) => new Uint8Array(n).fill(0xff)), 'ffffffff-ffff-4fff-bfff-ffffffffffff');
+  assert.equal(uuidv4((n) => new Uint8Array(n)), '00000000-0000-4000-8000-000000000000');
 });
 
 test('upload errors: duplicates and retryable failures', () => {

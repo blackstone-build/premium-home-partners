@@ -134,12 +134,19 @@ export const TABLES = [
   'profiles', 'homes', 'appliances', 'appliance_models', 'model_tasks', 'parts', 'part_prices',
   'pricing_settings', 'task_defaults', 'plan_builds', 'plans', 'visits', 'visit_tasks', 'visit_photos',
   'reports', 'notices', 'vendors', 'quote_requests', 'quote_bookings', 'bids', 'service_categories',
+  'service_requests', 'service_request_photos',
 ];
 
-/** Row counts of every public table plus auth users/identities (as the database owner). */
+/**
+ * Row counts of every public table plus auth users/identities (as the database
+ * owner). Tables a partially migrated database doesn't have yet are left out.
+ */
 export async function counts(db) {
   const out = {};
-  for (const t of [...TABLES, 'auth.users', 'auth.identities', 'storage.objects']) out[t] = await count(db, t);
+  for (const t of [...TABLES, 'auth.users', 'auth.identities', 'storage.objects']) {
+    const exists = (await db.query('select to_regclass($1) is not null as ok', [t])).rows[0].ok;
+    if (exists) out[t] = await count(db, t);
+  }
   return out;
 }
 
@@ -157,7 +164,8 @@ export const SEED_COUNTS = {
   plan_builds: 0,
   plans: 5,
   visits: 5,
-  visit_tasks: 34,
+  // 34 plan tasks + Priya's "Client request" task (Services v2).
+  visit_tasks: 35,
   visit_photos: 0,
   reports: 0,
   notices: 5,
@@ -165,7 +173,10 @@ export const SEED_COUNTS = {
   quote_requests: 0,
   quote_bookings: 0,
   bids: 0,
-  service_categories: 6,
+  service_categories: 26,
+  // Services v2: David's roof assessment, the Whitfields' pool estimate, Priya's photo request.
+  service_requests: 3,
+  service_request_photos: 0,
   'auth.users': 10,
   'auth.identities': 10,
   'storage.objects': 0,
