@@ -7,7 +7,7 @@ import { useCurrentVisit, useReports, type ReportVM } from '../../data/homeowner
 import { PHOTO_GRADIENTS, TECH } from '../../data/seed';
 import { useMode } from '../../lib/mode';
 import { Row, Screen, TextLink } from '../../ui/controls';
-import { Display, LqBadge, LqCard, LqStat, Txt } from '../../ui/primitives';
+import { Display, LqBadge, LqCard, Txt } from '../../ui/primitives';
 import { usePalette } from '../../ui/theme';
 
 export default function ReportsTab() {
@@ -91,6 +91,8 @@ function healthNote(health: number, previous: number | null): string | undefined
 
 function ReportDetail({ report, previousHealth, onBack }: { report: ReportVM; previousHealth: number | null; onBack: () => void }) {
   const c = usePalette();
+  const { mode } = useMode();
+  const note = healthNote(report.health, previousHealth);
   return (
     <Screen bottomInset={110}>
       <TextLink onPress={onBack}>‹ Reports</TextLink>
@@ -103,7 +105,22 @@ function ReportDetail({ report, previousHealth, onBack }: { report: ReportVM; pr
         </View>
         <LqBadge tone="forest">{`${report.doneCount} done`}</LqBadge>
       </Row>
-      <LqStat label="Home health" value={String(report.health)} sub={healthNote(report.health, previousHealth)} />
+      <LqCard style={{ gap: 4 }}>
+        <Row>
+          <Txt size={12} muted style={{ textTransform: 'uppercase', letterSpacing: 0.3 }}>
+            Home health
+          </Txt>
+          {mode === 'demo' ? <LqBadge tone="slate">Sample</LqBadge> : null}
+        </Row>
+        <Display size={30} style={{ lineHeight: 30, textTransform: 'none' }}>
+          {String(report.health)}
+        </Display>
+        {note ? (
+          <Txt size={12} muted>
+            {note}
+          </Txt>
+        ) : null}
+      </LqCard>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
         {report.photos.length ? (
           report.photos.map((p) => {
@@ -117,7 +134,7 @@ function ReportDetail({ report, previousHealth, onBack }: { report: ReportVM; pr
           })
         ) : (
           <View style={{ width: '47%', flexGrow: 1, gap: 5 }}>
-            <RemotePhoto path={null} height={124} radius={14} tag="—" colors={[c.rule, c.rule]} />
+            <RemotePhoto path={null} height={124} radius={14} tag="—" caption={null} colors={[c.rule, c.rule]} />
             <Txt size={12}>No photos captured</Txt>
           </View>
         )}

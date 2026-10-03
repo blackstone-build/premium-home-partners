@@ -4,7 +4,7 @@
 import { BlurView } from 'expo-blur';
 import type { ReactNode } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View, type StyleProp, type TextProps, type TextStyle, type ViewStyle } from 'react-native';
-import { FONT, RADIUS, STATUS, alpha, type Tone } from '../theme/tokens';
+import { FONT, RADIUS, alpha, type Tone } from '../theme/tokens';
 import { usePalette } from './theme';
 
 type TxtProps = TextProps & {
@@ -156,7 +156,8 @@ export function LqButton({
 
 export function LqBadge({ tone = 'neutral', children }: { tone?: Tone; children: ReactNode }) {
   const c = usePalette();
-  const col = tone === 'neutral' ? null : STATUS[tone];
+  // Text uses the theme-tuned status color. The fill is a light wash of that same color.
+  const col = tone === 'neutral' ? null : c.status[tone];
   return (
     <View
       style={{

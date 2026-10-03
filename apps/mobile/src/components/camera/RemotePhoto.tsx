@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Image, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { useMode } from '../../lib/mode';
 import { PhotoBox } from '../../ui/controls';
 import { Mono } from '../../ui/primitives';
 import { usePalette } from '../../ui/theme';
@@ -8,15 +9,16 @@ import { useSignedPhotoUrl } from './signedUrls';
 
 /**
  * A stored visit photo in the report-tile frame: PhotoBox (124pt, radius 14 by
- * default), tag chip top-left, "tech photo" caption bottom-left. The gradient
- * shows while the image loads, and stays if it can't be loaded.
+ * default), tag chip top-left, caption bottom-left on the brand band so it
+ * stays readable. Demo captions say "Sample". Pass `caption={null}` for none.
+ * The gradient shows while the image loads, and stays if it can't be loaded.
  */
 export function RemotePhoto({
   path,
   height = 124,
   radius = 14,
   tag,
-  caption = 'tech photo',
+  caption,
   colors,
   style,
   testID,
@@ -40,6 +42,8 @@ export function RemotePhoto({
   testID?: string;
 }) {
   const c = usePalette();
+  const { mode } = useMode();
+  const label = caption === undefined ? (mode === 'demo' ? 'Sample' : 'tech photo') : caption;
   const signed = useSignedPhotoUrl(uri ? null : path, bucket);
   const url = uri || signed;
   const [failed, setFailed] = useState<string | null>(null);
@@ -64,10 +68,12 @@ export function RemotePhoto({
           </Mono>
         </View>
       ) : null}
-      {caption ? (
-        <Mono size={10} color="#fff" style={{ position: 'absolute', left: 8, bottom: 8, opacity: 0.85 }}>
-          {caption}
-        </Mono>
+      {label ? (
+        <View style={{ position: 'absolute', left: 8, bottom: 8, paddingVertical: 2, paddingHorizontal: 6, borderRadius: 6, backgroundColor: c.band }}>
+          <Mono size={10} color={c.bandInk}>
+            {label}
+          </Mono>
+        </View>
       ) : null}
     </PhotoBox>
   );
