@@ -82,3 +82,19 @@ jobs:
         env:
           PR_BASE: ${{ github.base_ref }}
         run: node scripts/check-pr-size.mjs
+
+  merge-gate:
+    name: merge-gate
+    if: always()
+    needs: [check, verify-php, skill-eval, pr-size]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require every gate
+        env:
+          CHECK_RESULT: ${{ needs.check.result }}
+          VERIFY_RESULT: ${{ needs.verify-php.result }}
+          EVAL_RESULT: ${{ needs.skill-eval.result }}
+          SIZE_RESULT: ${{ needs.pr-size.result }}
+        run: node scripts/require-merge-gate.mjs
