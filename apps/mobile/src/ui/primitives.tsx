@@ -4,7 +4,7 @@
 import { BlurView } from 'expo-blur';
 import type { ReactNode } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View, type StyleProp, type TextProps, type TextStyle, type ViewStyle } from 'react-native';
-import { FONT, RADIUS, STATUS, alpha, type Tone } from '../theme/tokens';
+import { FONT, RADIUS, alpha, type Tone } from '../theme/tokens';
 import { usePalette } from './theme';
 
 type TxtProps = TextProps & {
@@ -156,7 +156,9 @@ export function LqButton({
 
 export function LqBadge({ tone = 'neutral', children }: { tone?: Tone; children: ReactNode }) {
   const c = usePalette();
-  const col = tone === 'neutral' ? null : STATUS[tone];
+  // Text uses the theme-tuned status color. The 10% wash is painted on paper,
+  // so a glass card behind the chip cannot pull the contrast under WCAG AA.
+  const col = tone === 'neutral' ? null : c.status[tone];
   return (
     <View
       style={{
@@ -165,12 +167,14 @@ export function LqBadge({ tone = 'neutral', children }: { tone?: Tone; children:
         alignSelf: 'flex-start',
         borderRadius: 999,
         borderWidth: 1,
+        overflow: 'hidden',
         paddingHorizontal: 8,
         paddingVertical: 2,
         borderColor: col ? alpha(col, 0.4) : c.rule,
-        backgroundColor: col ? alpha(col, 0.1) : c.glass,
+        backgroundColor: col ? c.paper : c.glass,
       }}
     >
+      {col ? <View style={[StyleSheet.absoluteFill, { backgroundColor: alpha(col, 0.1) }]} /> : null}
       <Txt size={12} weight="500" color={col ?? c.muted}>
         {children}
       </Txt>
