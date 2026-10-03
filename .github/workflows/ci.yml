@@ -69,3 +69,16 @@ jobs:
         env:
           PR_BASE: ${{ github.base_ref }}
         run: node scripts/check-skill-eval.mjs
+
+  pr-size:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Count changed lines
+        env:
+          PR_BASE: ${{ github.base_ref }}
+        run: node scripts/check-pr-size.mjs
