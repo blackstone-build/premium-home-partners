@@ -430,7 +430,7 @@ function useDemoCurrentVisit(): HoQuery<VisitVM | null> {
         )
         .concat(requestTasks),
       doneCount: visit.doneCount + requestTasks.filter((t) => t.done).length,
-      notices: { d7: true, h48: s.reminders, dayOf: s.tech !== 'scheduled', report: s.report },
+      notices: { d7: false, h48: s.reminders, dayOf: s.tech !== 'scheduled', report: s.report },
       reportId: s.report ? 'demo-report' : null,
       offeredSlots: [],
     };
@@ -522,6 +522,8 @@ export interface FindingVM {
   text: string;
   tone: Tone;
   badge: string;
+  /** Demo copy, not something a technician observed. */
+  sample?: boolean;
 }
 
 export interface ReportVM {
@@ -631,8 +633,8 @@ function useLiveReports(): HoQuery<ReportVM[]> {
 
 const DEMO_TECH_SHORT = TECH.name.split(' ')[0] + ' ' + TECH.name.split(' ')[1][0] + '.';
 const DEMO_FINDINGS: FindingVM[] = [
-  { text: 'Anode rod 70% depleted', tone: 'ochre', badge: 'Quote $185' },
-  { text: 'Dryer vent airflow normal', tone: 'forest', badge: 'Good' },
+  { text: 'Anode rod 70% depleted', tone: 'ochre', badge: 'Quote $185', sample: true },
+  { text: 'Dryer vent airflow normal', tone: 'forest', badge: 'Good', sample: true },
 ];
 
 function useDemoReports(): HoQuery<ReportVM[]> {

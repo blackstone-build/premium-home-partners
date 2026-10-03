@@ -7,12 +7,14 @@ import {
   chicagoTimeToIso,
   dayLabel,
   daysBetween,
+  daysUntilVisit,
   fmtDay,
   fmtDuration,
   fmtMonth,
   fmtShortDate,
   fmtTime,
   fmtWindow,
+  greeting,
   startOfDayChicagoIso,
   todayChicago,
   weekOfLabel,
@@ -104,4 +106,24 @@ test('dayLabel and fmtDuration', () => {
   assert.equal(fmtDuration(185), '3 hr 5 min');
   assert.equal(fmtDuration(150), '2 hr 30 min');
   assert.equal(fmtDuration(0), '0 hr 0 min');
+});
+
+test('greeting follows the Chicago hour', () => {
+  assert.equal(greeting('2026-10-03T15:00:00Z'), 'Good morning'); // 10:00
+  assert.equal(greeting('2026-10-03T16:59:00Z'), 'Good morning'); // 11:59
+  assert.equal(greeting('2026-10-03T17:00:00Z'), 'Good afternoon'); // 12:00
+  assert.equal(greeting('2026-10-03T19:00:00Z'), 'Good afternoon'); // 14:00
+  assert.equal(greeting('2026-10-03T21:59:00Z'), 'Good afternoon'); // 16:59
+  assert.equal(greeting('2026-10-03T22:00:00Z'), 'Good evening'); // 17:00
+  assert.equal(greeting('2026-10-04T04:30:00Z'), 'Good evening'); // 23:30
+});
+
+test('daysUntilVisit uses the window, then the next month-and-day label', () => {
+  const morning = '2026-10-03T15:00:00Z';
+  assert.equal(daysUntilVisit('2026-10-14T14:00:00Z', 'ignored', morning), 11);
+  assert.equal(daysUntilVisit('', 'Tue · Oct 14', morning), 11);
+  assert.equal(daysUntilVisit('', 'Wed · Oct 15', '2026-10-10T15:00:00Z'), 5);
+  assert.equal(daysUntilVisit('', 'Tue · Oct 14', '2026-10-14T15:00:00Z'), 0);
+  assert.equal(daysUntilVisit('', 'Tue · Oct 14', '2026-10-20T15:00:00Z'), daysBetween('2026-10-20', '2027-10-14'));
+  assert.equal(daysUntilVisit('', 'not a day', morning), null);
 });

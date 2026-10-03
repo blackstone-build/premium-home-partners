@@ -25,6 +25,8 @@ import {
   type Account,
 } from './helpers';
 
+const ELENA_GREETING = /Good (morning|afternoon|evening), Elena/;
+
 /** Something only that role's landing screen shows. */
 const LANDMARK: Record<Account, string> = {
   homeowner: 'Linden Court',
@@ -105,14 +107,14 @@ test.describe('demo access', () => {
     await exitToLauncher(page);
 
     await launch(page, 'office');
-    await expect(shown(page.getByText('Good morning, Elena'))).toHaveCount(0);
+    await expect(shown(page.getByText(ELENA_GREETING))).toHaveCount(0);
     await exitToLauncher(page);
     expect(await cachedAccounts(page)).toEqual(['homeowner', 'office']);
 
     // Back to Elena: the tab restores her cached session, no second sign-in.
     const signIns = countPasswordSignIns(page);
     await launch(page, 'homeowner');
-    await expect(shown(page.getByText('Good morning, Elena'))).toBeVisible();
+    await expect(shown(page.getByText(ELENA_GREETING))).toBeVisible();
     await expect(shown(page.getByText(LANDMARK.office))).toHaveCount(0);
     expect(signIns, 'switching back to Elena should reuse her cached session').toEqual([]);
   });

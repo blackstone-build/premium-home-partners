@@ -41,11 +41,11 @@ Under the hood, each side signs in to a seeded demo account. The launcher's **Si
 
 ### 2. The visit, live across devices (Marcus → Elena)
 1. **Marcus:** Today's route → tap the **Elena Alvarez · 12 Linden Court** card → **Start driving · notify client**.
-2. **Elena:** without a refresh, the banner reads **"Marcus is on the way · 12 min"**, and the Day-of notice lights up.
+2. **Elena:** without a refresh, the banner reads **"Marcus is on the way"**, and the Day-of notice lights up. Minutes appear only when a real ETA exists.
 3. **Marcus:** **Mark arrived on site**. Elena's banner changes to **"Marcus is on site"** with a live task count.
 4. **Marcus:** tick each checklist task. On *Replace HVAC filters ×2*, tap **+ Photo** and take a photo (on a laptop this opens a file picker). The pill shows "✓ Photo".
 5. **Marcus:** **Complete & send report**. Elena's banner reads **"Visit complete · report ready"**.
-6. **Elena:** Reports → the new report shows Home health 86, **the real photo**, and findings.
+6. **Elena:** Reports → the new report shows Home health 86 and **the real photo**. Findings stay empty until something was actually observed.
 
 ### 3. Add-on brokerage (Elena → Sam → Office)
 1. **Elena:** Services → tap **Window washing**. The tile reads "Finding pros…", then network quotes arrive within a few seconds.
@@ -110,6 +110,6 @@ Everything shown in the click path above is backed by real data, row-level secur
 - **Native apps:** there are no iOS or Android builds. The app runs on Expo, but only the web build was tested. The native camera screens and the navy splash screen (expo-splash-screen) need a new development build and have never run on a device.
 - **Plate reading with AI** needs the `ANTHROPIC_WORKSPACE_ID` Edge Function secret (see Health checks).
 - **Not built (P2):** push, email and SMS notices, the scheduled `send-notices` job, and Stripe checkout. "Start plan" activates the plan without payment.
-- **Simulated:** network vendor bids (Summit Pro Services, Clearview & Sons are added automatically a few seconds after a request), the "12 min" ETA, route miles, and the map. Parts prices and suppliers are seeded sample data, and there is no live supplier pricing.
+- **Simulated:** network vendor bids (Summit Pro Services, Clearview & Sons are added automatically a few seconds after a request), route miles, and the map. There is no ETA until a drive time exists. Parts prices and suppliers are seeded sample data, and there is no live supplier pricing.
 - **Visit schedule:** changing a plan's coverage tier updates the next visit's checklist but doesn't rebuild the rest of the year's visits. Seeded clients have only their next visit, and seeded visits can fall on a weekend.
 - **One environment:** a single Supabase project serves the demo and the E2E tests, so there is no staging.

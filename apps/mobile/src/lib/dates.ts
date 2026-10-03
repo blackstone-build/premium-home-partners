@@ -90,6 +90,39 @@ export function todayChicago(now: DateInput = new Date()): string {
   return chicagoDate(now);
 }
 
+/** Morning before noon, afternoon before 5pm, evening after. Chicago wall clock. */
+export function greeting(now: DateInput = new Date()): 'Good morning' | 'Good afternoon' | 'Good evening' {
+  const hour = wallClock(now).h;
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+/**
+ * Whole days from the Chicago today until a visit. A real `windowStart` wins.
+ * Otherwise `day` is a label like `Tue · Oct 14`, taken as the next time that
+ * month and day comes around.
+ */
+export function daysUntilVisit(windowStart: string, day: string, now: DateInput = new Date()): number | null {
+  const today = todayChicago(now);
+  if (windowStart) {
+    try {
+      return daysBetween(today, chicagoDate(windowStart));
+    } catch {
+      // The label below is the fallback.
+    }
+  }
+  const match = /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b[^\d]*(\d{1,2})/i.exec(day);
+  if (!match) return null;
+  const month = MONTHS.indexOf(match[1][0].toUpperCase() + match[1].slice(1, 3).toLowerCase()) + 1;
+  const dom = Number(match[2]);
+  if (month < 1 || dom < 1 || dom > 31) return null;
+  const year = wallClock(now).y;
+  let target = `${year}-${pad(month)}-${pad(dom)}`;
+  if (daysBetween(today, target) < 0) target = `${year + 1}-${pad(month)}-${pad(dom)}`;
+  return daysBetween(today, target);
+}
+
 /** `addDays('2026-09-25', 3)` → `'2026-09-28'`. Calendar arithmetic, no zone involved. */
 export function addDays(ymd: string, n: number): string {
   const { y, m, d } = ymdParts(ymd);

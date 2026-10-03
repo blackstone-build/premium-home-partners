@@ -25,7 +25,8 @@ export default function ReportsTab() {
 
   if (!reports.data.length) return <NoReports />;
 
-  const open = openId ? reports.data.find((r) => r.id === openId) : undefined;
+  const openIndex = openId ? reports.data.findIndex((r) => r.id === openId) : -1;
+  const open = openIndex >= 0 ? reports.data[openIndex] : undefined;
   if (!open) {
     return (
       <Screen bottomInset={110}>
@@ -51,7 +52,8 @@ export default function ReportsTab() {
     );
   }
 
-  return <ReportDetail report={open} onBack={() => setOpenId(null)} />;
+  const previous = reports.data[openIndex + 1];
+  return <ReportDetail report={open} previousHealth={previous ? previous.health : null} onBack={() => setOpenId(null)} />;
 }
 
 /** Before the first visit is done. */
@@ -80,7 +82,14 @@ function NoReports() {
   );
 }
 
-function ReportDetail({ report, onBack }: { report: ReportVM; onBack: () => void }) {
+function healthNote(health: number, previous: number | null): string | undefined {
+  if (previous == null) return undefined;
+  const delta = health - previous;
+  if (delta === 0) return 'No change since your last visit';
+  return `${delta > 0 ? '▲' : '▼'} ${Math.abs(delta)} since your last visit`;
+}
+
+function ReportDetail({ report, previousHealth, onBack }: { report: ReportVM; previousHealth: number | null; onBack: () => void }) {
   const c = usePalette();
   return (
     <Screen bottomInset={110}>
@@ -94,7 +103,7 @@ function ReportDetail({ report, onBack }: { report: ReportVM; onBack: () => void
         </View>
         <LqBadge tone="forest">{`${report.doneCount} done`}</LqBadge>
       </Row>
-      <LqStat label="Home health" value={String(report.health)} sub="▲ 4 since your intake" />
+      <LqStat label="Home health" value={String(report.health)} sub={healthNote(report.health, previousHealth)} />
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
         {report.photos.length ? (
           report.photos.map((p) => {
@@ -114,9 +123,14 @@ function ReportDetail({ report, onBack }: { report: ReportVM; onBack: () => void
         )}
       </View>
       {report.findings.map((f) => (
-        <Row key={f.text}>
-          <Txt size={13}>{f.text}</Txt>
-          {f.badge ? <LqBadge tone={f.tone}>{f.badge}</LqBadge> : null}
+        <Row key={f.text} style={{ gap: 10 }}>
+          <Txt size={13} style={{ flexShrink: 1 }}>
+            {f.text}
+          </Txt>
+          <View style={{ flexDirection: 'row', gap: 6 }}>
+            {f.sample ? <LqBadge tone="slate">Sample</LqBadge> : null}
+            {f.badge ? <LqBadge tone={f.tone}>{f.badge}</LqBadge> : null}
+          </View>
         </Row>
       ))}
     </Screen>
