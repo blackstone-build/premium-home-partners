@@ -21,7 +21,7 @@ import { rpc } from './rpc';
 import { requireSupabase } from './supabase';
 
 export { RemotePhoto } from '../components/camera/RemotePhoto';
-export { getSignedUrl, getSignedUrls, useSignedPhotoUrl } from '../components/camera/signedUrls';
+export { getSignedUrls, useSignedPhotoUrl } from '../components/camera/signedUrls';
 export { PHOTO_BUCKET, REQUEST_PHOTO_BUCKET, photoPath, requestPhotoPath, type PhotoBucket, type PhotoKind } from '../components/camera/photoUtils';
 export type { CapturedPhoto } from '../components/camera/types';
 

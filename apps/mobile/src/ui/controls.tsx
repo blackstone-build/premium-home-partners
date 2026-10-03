@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
-import { FONT, RADIUS, STATUS, alpha } from '../theme/tokens';
+import { RADIUS, STATUS, alpha } from '../theme/tokens';
 import { Mono, Txt } from './primitives';
 import { usePalette } from './theme';
 
@@ -233,15 +233,3 @@ export function Avatar({ initials, size = 40 }: { initials: string; size?: numbe
     </View>
   );
 }
-
-export function Divided({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
-  const c = usePalette();
-  return <View style={[{ borderTopWidth: 1, borderColor: c.rule }, style]}>{children}</View>;
-}
-
-export function ListRow({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
-  const c = usePalette();
-  return <View style={[{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: c.rule }, style]}>{children}</View>;
-}
-
-export const monoFont = FONT.mono;

@@ -35,11 +35,6 @@ export function getSignedUrls(paths: readonly string[], bucket: PhotoBucket = PH
   return loaderFor(bucket).getMany(paths);
 }
 
-/** One signed URL, or null when the path can't be signed (e.g. the object is gone). */
-export function getSignedUrl(path: string, bucket: PhotoBucket = PHOTO_BUCKET): Promise<string | null> {
-  return loaderFor(bucket).get(path);
-}
-
 /**
  * A signed URL for `path`, or null while it loads, when `path` is empty, or
  * when it can't be signed. Retries with backoff while the server is

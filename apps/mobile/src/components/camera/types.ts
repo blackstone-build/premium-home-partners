@@ -28,25 +28,3 @@ export interface PhotoCaptureApi {
    */
   capture(opts?: CaptureOptions): Promise<CapturedPhoto | null>;
 }
-
-/** Imperative handle for <PlateViewfinder ref={…}>. */
-export interface PlateViewfinderHandle {
-  /**
-   * Native + active + camera allowed: takes a photo from the live preview.
-   * Web + active: opens the file picker (call it straight from the press handler).
-   * Resolves null when inactive, cancelled, or the camera is off.
-   */
-  takePhoto(): Promise<CapturedPhoto | null>;
-}
-
-export interface PlateViewfinderProps {
-  /** Live mode: use the camera (native) or the file picker (web). False shows `children` only. */
-  active: boolean;
-  /** Reading a plate: the accent bounding box goes from 35% to full opacity. */
-  busy: boolean;
-  /** The sample plate card, shown on web and whenever the camera isn't live. */
-  children?: import('react').ReactNode;
-  /** Drawn on top in every state, e.g. the "Tap shutter · 0 of 5 captured" pill. */
-  overlay?: import('react').ReactNode;
-  ref?: import('react').Ref<PlateViewfinderHandle>;
-}

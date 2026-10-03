@@ -86,8 +86,8 @@ export const DARK: Palette = {
 };
 
 /**
- * Status fills are semantic and never re-themed; each carries white text
- * (STATUS_INK). For status-colored text use `palette.status`, tuned per theme.
+ * Status fills are semantic and never re-themed.
+ * For status-colored text use `palette.status`, tuned per theme.
  */
 export const STATUS = {
   forest: '#2F7A55',
@@ -95,9 +95,6 @@ export const STATUS = {
   brick: '#B8453B',
   slate: '#4F6E90',
 } as const satisfies Record<StatusKey, string>;
-
-/** Text or icon color on a STATUS fill. */
-export const STATUS_INK = '#FFFFFF';
 
 export type Tone = StatusKey | 'neutral';
 
@@ -114,7 +111,6 @@ export const FONT = {
  * tabBar: the homeowner tab bar · card, button: aliases used by the brand screens.
  */
 export const RADIUS = { glass: 18, card: 18, field: 14, pill: 20, button: 14, tabBar: 31 };
-export const SPACE = { screen: 22, stack: 14, card: 16 };
 
 /** Mix a hex color with transparency, e.g. accent at 16%. */
 export function alpha(hex: string, a: number): string {

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { DEFAULT_SETTINGS, TASKS, TIERS, adjustedFreq, buildSchedule, priceAllTiers } from '@php/pricing';
+import { DEFAULT_SETTINGS, TASKS, adjustedFreq, buildSchedule, priceAllTiers } from '@php/pricing';
 import { toTierViews, type TierView } from '../data/pricing';
 import { MONTHS, SLOTS } from '../data/seed';
 import { useApp } from './app';
@@ -75,5 +75,3 @@ export function useHomeNames() {
   const { name, addr } = useApp(useShallow((s) => ({ name: s.name, addr: s.addr })));
   return { firstName: name.split(' ')[0] || 'there', street: addr.split(',')[0], name, addr };
 }
-
-export const TIER_COUNT = TIERS.length;
