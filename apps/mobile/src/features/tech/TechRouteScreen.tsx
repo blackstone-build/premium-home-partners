@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import { AppExitLink } from '../auth/AppExitLink';
 import { EmptyState, ErrorState, LoadingState } from '../../components/States';
-import { TECH_STATUS } from './techStatus';
+import { TECH_STATUS } from '../../data/techStatus';
 import { stopWhen, useTechRoute } from '../../data/tech';
 import type { VisitVM } from '../../data/visits';
 import { todayChicago } from '../../lib/dates';

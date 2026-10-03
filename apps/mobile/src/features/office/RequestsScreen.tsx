@@ -4,7 +4,7 @@
 
 import { useMemo, useState } from 'react';
 import { TextInput, useWindowDimensions, View } from 'react-native';
-import { ChoiceChips, RequestPhotoThumbs } from '../services/ServiceBits';
+import { ChoiceChips, RequestPhotoThumbs } from '../../components/ServiceBits';
 import { EmptyState, ErrorState, LoadingState } from '../../components/States';
 import {
   CONTRACTED_CATEGORIES,

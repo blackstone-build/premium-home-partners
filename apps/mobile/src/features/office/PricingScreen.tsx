@@ -6,7 +6,7 @@ import { Table } from '../../components/Table';
 import { useOfficeTier, useReferenceHome } from '../../data/office';
 import { tierViewsFor, useOfficePricingMutations, usePricingInputs } from '../../data/pricing';
 import { friendlyError } from '../../lib/errors';
-import { STATUS, alpha } from '../../theme/tokens';
+import { alpha } from '../../theme/tokens';
 import { Row, StepperTile } from '../../ui/controls';
 import { Display, Mono, Txt } from '../../ui/primitives';
 import { usePalette } from '../../ui/theme';

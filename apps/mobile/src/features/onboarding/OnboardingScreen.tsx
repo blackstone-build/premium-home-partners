@@ -7,7 +7,7 @@ import { Logo } from '../auth/Logo';
 import { usePhotoCapture } from '../../components/camera';
 import { BlankField } from '../auth/RoleGate';
 import { ErrorState, LoadingState } from '../../components/States';
-import { TierPicker } from '../plan/TierPicker';
+import { TierPicker } from '../../components/TierPicker';
 import {
   buildPlan,
   clearOnboardingDraft,

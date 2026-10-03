@@ -4,11 +4,11 @@
 // status line used on request cards.
 
 import { View, type StyleProp, type ViewStyle } from 'react-native';
-import { REQUEST_PHOTO_BUCKET, RemotePhoto } from '../../lib/photos';
-import type { LineTone, RequestPhotoVM } from '../../data/servicesModel';
-import { Pill } from '../../ui/controls';
-import { Txt } from '../../ui/primitives';
-import { usePalette } from '../../ui/theme';
+import { REQUEST_PHOTO_BUCKET, RemotePhoto } from '../lib/photos';
+import type { LineTone, RequestPhotoVM } from '../data/servicesModel';
+import { Pill } from '../ui/controls';
+import { Txt } from '../ui/primitives';
+import { usePalette } from '../ui/theme';
 
 /** A row of square request photos. Signed URLs when the list has them, else each thumbnail signs its own path. */
 export function RequestPhotoThumbs({

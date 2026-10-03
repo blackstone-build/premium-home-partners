@@ -13,7 +13,8 @@ import { useMode } from '../../lib/mode';
 import { queryClient } from '../../lib/queryClient';
 import { RealtimeBridge } from '../../lib/realtime';
 import { ToastHost } from '../../lib/toast';
-import { usePalette } from '../../ui/theme';
+import { useApp } from '../../store/app';
+import { DARK, LIGHT, PaletteProvider } from '../../ui/theme';
 
 /** Show the app with system fonts if the brand fonts haven't loaded or failed by then. */
 const FONT_WAIT_MS = 6000;
@@ -37,11 +38,13 @@ export default function RootLayout() {
     return () => clearTimeout(t);
   }, [fontsSettled]);
   const fontsReady = fontsSettled || fontWaitOver;
-  const c = usePalette();
+  const dark = useApp((s) => s.dark);
+  const c = dark ? DARK : LIGHT;
   const { mode, hydrated } = useMode();
   if (!fontsReady || !hydrated) return <View style={{ flex: 1, backgroundColor: c.field }} />;
   const stack = <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.field }, animation: 'fade' }} />;
   return (
+    <PaletteProvider value={c}>
     <SafeAreaProvider>
       <StatusBar style={c.dark ? 'light' : 'dark'} />
       <QueryClientProvider client={queryClient}>
@@ -60,5 +63,6 @@ export default function RootLayout() {
         <PhotoCaptureHost />
       </QueryClientProvider>
     </SafeAreaProvider>
+    </PaletteProvider>
   );
 }

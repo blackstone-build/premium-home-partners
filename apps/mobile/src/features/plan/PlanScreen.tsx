@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 import { ErrorState, LoadingState } from '../../components/States';
-import { TierPicker } from './TierPicker';
+import { TierPicker } from '../../components/TierPicker';
 import { useHomeownerTiers, useSetTier, useYearOfCare } from '../../data/homeowner';
 import { Row, Screen, TextLink } from '../../ui/controls';
 import { Display, LqSectionTitle, Mono, Txt } from '../../ui/primitives';

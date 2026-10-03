@@ -9,7 +9,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import type { VendorViewInput } from '../features/vendor/vendorView';
 import { useSession } from '../lib/auth';
 import { addDays, fmtShortDate, todayChicago } from '../lib/dates';
 import { useMode } from '../lib/mode';
@@ -25,6 +24,14 @@ import { ADD_ONS, MY_VENDOR, VENDOR_DATES } from './seed';
 // ---------------------------------------------------------------------------
 // View models
 // ---------------------------------------------------------------------------
+
+/** What the vendor screen needs from a request, in either mode. */
+export interface VendorViewInput {
+  status: 'open' | 'booked' | 'canceled';
+  bookedBidId: string | null;
+  bidCount: number;
+  myBid: { id: string; price: number } | null;
+}
 
 export interface VendorMe {
   id: string;

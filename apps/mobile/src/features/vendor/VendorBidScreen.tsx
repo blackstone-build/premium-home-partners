@@ -7,7 +7,6 @@ import { vendorView } from './vendorView';
 import { usePricingInputs } from '../../data/pricing';
 import { useBidDraft, useVendorRequest, type VendorRequestVM } from '../../data/vendor';
 import { useMode } from '../../lib/mode';
-import { STATUS } from '../../theme/tokens';
 import { PhotoBox, Row, RoundBtn, Screen, TextLink } from '../../ui/controls';
 import { Display, Eyebrow, LqButton, LqCard, Mono, Txt } from '../../ui/primitives';
 import { usePalette } from '../../ui/theme';

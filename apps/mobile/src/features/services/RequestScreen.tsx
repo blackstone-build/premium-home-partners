@@ -6,7 +6,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { usePhotoCapture } from '../../components/camera';
-import { ChoiceChips } from './ServiceBits';
+import { ChoiceChips } from '../../components/ServiceBits';
 import {
   CONTRACTED_CATEGORIES,
   DESCRIPTION_MAX,

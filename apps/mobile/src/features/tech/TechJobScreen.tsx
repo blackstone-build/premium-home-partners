@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { Pressable, View } from 'react-native';
-import { RequestPhotoThumbs } from '../services/ServiceBits';
+import { RequestPhotoThumbs } from '../../components/ServiceBits';
 import { EmptyState, ErrorState, LoadingState } from '../../components/States';
 import { roomLabel, titleRepeatsDescription, urgencyLabel } from '../../data/servicesModel';
 import { stopWhen, useTechVisit, useTechVisitActions } from '../../data/tech';

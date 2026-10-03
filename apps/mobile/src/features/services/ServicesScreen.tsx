@@ -2,7 +2,7 @@ import { money } from '@php/pricing';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
-import { RequestPhotoThumbs, StatusLine } from './ServiceBits';
+import { RequestPhotoThumbs, StatusLine } from '../../components/ServiceBits';
 import { ErrorState, LoadingState } from '../../components/States';
 import { useBookBid, useQuoteRequests, useRequestQuote, type QuoteRequestVM } from '../../data/homeowner';
 import {
