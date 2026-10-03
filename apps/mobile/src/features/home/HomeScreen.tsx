@@ -94,6 +94,8 @@ function VisitView({ header, visit, live }: { header: ReactNode; visit: VisitVM;
   ];
 
   const done = status === 'done';
+  const listSent = visit.notices.d7 || visit.notices.h48 || (daysOut != null && daysOut >= 0 && daysOut <= 7);
+  const visitLabel = done ? 'Completed' : visit.confirmed ? 'Confirmed' : listSent ? 'Notice sent' : 'Scheduled';
   // Live: once confirmed (or done) the button is settled; demo keeps its original behavior.
   const confirmDisabled = live && (visit.confirmed || done || confirm.isPending);
   const rescheduleDisabled = status !== 'scheduled' || reschedule.isPending;
@@ -124,7 +126,7 @@ function VisitView({ header, visit, live }: { header: ReactNode; visit: VisitVM;
       <LqCard>
         <Row>
           <Eyebrow>NEXT VISIT</Eyebrow>
-          <LqBadge tone={done || visit.confirmed ? 'forest' : 'slate'}>{done ? 'Completed' : visit.confirmed ? 'Confirmed' : 'Notice sent'}</LqBadge>
+          <LqBadge tone={done || visit.confirmed ? 'forest' : 'slate'}>{visitLabel}</LqBadge>
         </Row>
         <Display size={34} style={{ marginTop: 8 }}>
           {visit.day}
