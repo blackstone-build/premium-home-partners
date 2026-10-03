@@ -1,4 +1,5 @@
 node_modules/
+verify-php-output/
 .env
 .env*.local
 .vercel
