@@ -23,7 +23,7 @@ export default function PlanTab() {
   }
   const { cur } = tiers.data;
   return (
-    <Screen bottomInset={110}>
+    <Screen bottomInset={edit ? 176 : 110}>
       <Row style={{ alignItems: 'flex-end' }}>
         <View>
           <Txt size={13} muted>

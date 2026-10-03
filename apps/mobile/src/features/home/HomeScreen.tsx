@@ -87,10 +87,11 @@ function VisitView({ header, visit, live }: { header: ReactNode; visit: VisitVM;
           : null;
 
   const daysOut = daysUntilVisit(visit.windowStart, visit.day);
+  // Short labels name the notice, not a send that has not happened. The bar is the status.
   const notices = [
-    { t: '7 days · list sent', on: visit.notices.d7 || (daysOut != null && daysOut >= 0 && daysOut <= 7) },
-    { t: '48 hrs · reminder', on: visit.notices.h48 },
-    { t: 'Day of · on the way', on: status !== 'scheduled' },
+    { t: '7 days', on: visit.notices.d7 || (daysOut != null && daysOut >= 0 && daysOut <= 7) },
+    { t: '48 hrs', on: visit.notices.h48 },
+    { t: 'Day of', on: status !== 'scheduled' },
   ];
 
   const done = status === 'done';
@@ -163,7 +164,7 @@ function VisitView({ header, visit, live }: { header: ReactNode; visit: VisitVM;
         {notices.map((n) => (
           <View key={n.t} style={{ flex: 1 }}>
             <View style={{ height: 3, borderRadius: 2, backgroundColor: n.on ? STATUS.forest : c.rule, marginBottom: 6 }} />
-            <Txt size={11} muted>
+            <Txt size={13} muted style={{ textAlign: 'center' }}>
               {n.t}
             </Txt>
           </View>
