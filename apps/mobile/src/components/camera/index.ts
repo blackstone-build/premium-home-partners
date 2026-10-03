@@ -2,23 +2,19 @@
 //
 //   usePhotoCapture().capture()  native: full-screen camera modal; web: file picker
 //   <PhotoCaptureHost />         mount once in the root layout (null on web)
-//   <PlateViewfinder ref active busy overlay>{sample plate}</PlateViewfinder>
 //   <RemotePhoto path tag />     a stored photo in the report-tile frame
 
 import type * as NativeLocal from './localPhoto';
 import type * as WebLocal from './localPhoto.web';
 import type * as NativeCapture from './PhotoCapture';
 import type * as WebCapture from './PhotoCapture.web';
-import type * as NativeFinder from './PlateViewfinder';
-import type * as WebFinder from './PlateViewfinder.web';
 
 export { localPhotoUri } from './localPhoto';
 export { PhotoCaptureHost, capturePhoto, usePhotoCapture } from './PhotoCapture';
-export { PlateViewfinder } from './PlateViewfinder';
 export { RemotePhoto } from './RemotePhoto';
 export { Shutter } from './Shutter';
 export { CAMERA_OFF, JPEG_QUALITY, MAX_EDGE } from './photoUtils';
-export type { CaptureOptions, CapturedPhoto, PhotoCaptureApi, PlateViewfinderHandle, PlateViewfinderProps } from './types';
+export type { CaptureOptions, CapturedPhoto, PhotoCaptureApi } from './types';
 
 // Compile-time check that the native and web files export the same API.
 type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
@@ -27,6 +23,5 @@ export type _PlatformParity = [
   Assert<Same<typeof NativeCapture.usePhotoCapture, typeof WebCapture.usePhotoCapture>>,
   Assert<Same<typeof NativeCapture.capturePhoto, typeof WebCapture.capturePhoto>>,
   Assert<Same<keyof typeof NativeCapture, keyof typeof WebCapture>>,
-  Assert<Same<typeof NativeFinder.PlateViewfinder, typeof WebFinder.PlateViewfinder>>,
   Assert<Same<typeof NativeLocal.localPhotoUri, typeof WebLocal.localPhotoUri>>,
 ];

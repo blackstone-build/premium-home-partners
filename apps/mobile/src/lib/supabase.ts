@@ -234,6 +234,3 @@ if (supabase && !isWeb) {
     else supabase.auth.stopAutoRefresh();
   });
 }
-
-/** @deprecated Use `useMode()` from `src/lib/mode.ts`; kept for older imports. */
-export const isDemoMode = supabase === null;
