@@ -35,9 +35,8 @@ export default function ServicesTab() {
     <Screen bottomInset={110}>
       <View>
         <Display>Services</Display>
-        <Txt size={14} muted style={{ marginTop: 6, lineHeight: 20 }}>
-          Your first stop for anything the house needs. Vetted partners handle routine and seasonal care; bigger projects we manage
-          ourselves, under our general contractor's license.
+        <Txt size={14} muted style={{ marginTop: 6 }}>
+          Partners for routine care. We manage the rest.
         </Txt>
       </View>
       <ShowUsCard />
