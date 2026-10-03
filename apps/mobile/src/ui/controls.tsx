@@ -30,6 +30,8 @@ export function Stage({ children, style }: { children?: ReactNode; style?: Style
 /**
  * Scrollable phone screen: 22pt gutters, 14pt stack gap. On wide web viewports
  * the column is capped at phone width so the mobile apps keep their layout.
+ * `footer` is pinned under the scroll and owns the safe-area inset. `bottomInset`
+ * is then the gap so the last row can sit fully above the footer.
  */
 export function Screen({ children, bottomInset = 40, footer }: { children: ReactNode; bottomInset?: number; footer?: ReactNode }) {
   const insets = useSafeAreaInsets();
@@ -40,7 +42,7 @@ export function Screen({ children, bottomInset = 40, footer }: { children: React
         style={{ flex: 1 }}
         contentContainerStyle={{
           paddingTop: insets.top + 12,
-          paddingBottom: insets.bottom + bottomInset,
+          paddingBottom: (footer ? 0 : insets.bottom) + bottomInset,
           paddingHorizontal: 22,
           gap: 14,
           width: '100%',
@@ -54,7 +56,7 @@ export function Screen({ children, bottomInset = 40, footer }: { children: React
         {mark}
         {children}
       </ScrollView>
-      {footer}
+      {footer ? <View style={{ flexShrink: 0 }}>{footer}</View> : null}
     </Stage>
   );
 }
