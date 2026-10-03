@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
 import { View } from 'react-native';
-import { useSession } from '../lib/auth';
-import { DEMO_ACCESS } from '../lib/demoAccess';
-import { useMode } from '../lib/mode';
-import { TextLink } from '../ui/controls';
+import { useSession } from '../../lib/auth';
+import { DEMO_ACCESS } from '../../lib/demoAccess';
+import { useMode } from '../../lib/mode';
+import { TextLink } from '../../ui/controls';
 
 /**
  * The "‹ All apps" link. In offline demo it returns to the launcher, as

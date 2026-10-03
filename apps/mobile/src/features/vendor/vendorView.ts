@@ -1,5 +1,5 @@
 import { money } from '@php/pricing';
-import type { Palette } from '../theme/tokens';
+import type { Palette } from '../../theme/tokens';
 
 /**
  * What vendorView needs from a request, in either mode (see data/vendor.ts):

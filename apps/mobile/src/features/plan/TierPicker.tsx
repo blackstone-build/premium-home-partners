@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
-import type { TierView } from '../data/pricing';
-import { Display, Txt } from '../ui/primitives';
-import { usePalette } from '../ui/theme';
+import type { TierView } from '../../data/pricing';
+import { Display, Txt } from '../../ui/primitives';
+import { usePalette } from '../../ui/theme';
 
 /**
  * The four coverage tiers. Full rows on onboarding, compact rows on the Plan tab.
