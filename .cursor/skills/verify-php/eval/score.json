@@ -1,0 +1,49 @@
+{
+  "skill": "verify-php",
+  "evaluatedCommit": "9b1249b1b61160c24609d4491e724e3522134d44",
+  "threshold": 1,
+  "score": 1,
+  "passed": 24,
+  "total": 24,
+  "elapsedMs": 19997,
+  "skipped": [
+    {
+      "id": "signin-form",
+      "reason": "The offline demo redirects /login. The form needs a Supabase build."
+    },
+    {
+      "id": "signup-form",
+      "reason": "The offline demo redirects /signup. The form needs a live demo build."
+    },
+    {
+      "id": "office-reset-server",
+      "reason": "Reset demo data calls the server. This skill does not configure Supabase."
+    }
+  ],
+  "scenarios": [
+    { "id": "doctor-offline", "ok": true, "elapsedMs": 161 },
+    { "id": "launcher-open", "ok": true, "elapsedMs": 136 },
+    { "id": "launcher-theme", "ok": true, "elapsedMs": 257 },
+    { "id": "signin-redirect", "ok": true, "elapsedMs": 230 },
+    { "id": "signup-redirect", "ok": true, "elapsedMs": 213 },
+    { "id": "onboard-welcome", "ok": true, "elapsedMs": 161 },
+    { "id": "onboard-address", "ok": true, "elapsedMs": 246 },
+    { "id": "onboard-scan", "ok": true, "elapsedMs": 7547 },
+    { "id": "onboard-research", "ok": true, "elapsedMs": 3465 },
+    { "id": "onboard-tier", "ok": true, "elapsedMs": 212 },
+    { "id": "home-next", "ok": true, "elapsedMs": 82 },
+    { "id": "home-confirm", "ok": true, "elapsedMs": 150 },
+    { "id": "plan-open", "ok": true, "elapsedMs": 185 },
+    { "id": "plan-change", "ok": true, "elapsedMs": 168 },
+    { "id": "reports-empty", "ok": true, "elapsedMs": 133 },
+    { "id": "services-lines", "ok": true, "elapsedMs": 388 },
+    { "id": "request-show", "ok": true, "elapsedMs": 379 },
+    { "id": "tech-finish", "ok": true, "elapsedMs": 919 },
+    { "id": "reports-detail", "ok": true, "elapsedMs": 242 },
+    { "id": "vendor-bid", "ok": true, "elapsedMs": 2512 },
+    { "id": "office-pricing", "ok": true, "elapsedMs": 477 },
+    { "id": "office-dispatch", "ok": true, "elapsedMs": 273 },
+    { "id": "office-quotes", "ok": true, "elapsedMs": 199 },
+    { "id": "office-requests", "ok": true, "elapsedMs": 292 }
+  ]
+}
