@@ -156,7 +156,8 @@ export function LqButton({
 
 export function LqBadge({ tone = 'neutral', children }: { tone?: Tone; children: ReactNode }) {
   const c = usePalette();
-  // Text uses the theme-tuned status color. The fill is a light wash of that same color.
+  // Text uses the theme-tuned status color. The 10% wash is painted on paper,
+  // so a glass card behind the chip cannot pull the contrast under WCAG AA.
   const col = tone === 'neutral' ? null : c.status[tone];
   return (
     <View
@@ -166,12 +167,14 @@ export function LqBadge({ tone = 'neutral', children }: { tone?: Tone; children:
         alignSelf: 'flex-start',
         borderRadius: 999,
         borderWidth: 1,
+        overflow: 'hidden',
         paddingHorizontal: 8,
         paddingVertical: 2,
         borderColor: col ? alpha(col, 0.4) : c.rule,
-        backgroundColor: col ? alpha(col, 0.1) : c.glass,
+        backgroundColor: col ? c.paper : c.glass,
       }}
     >
+      {col ? <View style={[StyleSheet.absoluteFill, { backgroundColor: alpha(col, 0.1) }]} /> : null}
       <Txt size={12} weight="500" color={col ?? c.muted}>
         {children}
       </Txt>
