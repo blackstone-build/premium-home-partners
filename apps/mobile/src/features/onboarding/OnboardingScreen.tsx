@@ -2,6 +2,7 @@ import { TASKS, money, type Water } from '@php/pricing';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Pressable, TextInput, View, type TextInputProps } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppExitLink } from '../auth/AppExitLink';
 import { Logo } from '../auth/Logo';
 import { usePhotoCapture } from '../../components/camera';
@@ -34,7 +35,7 @@ import { useApp } from '../../store/app';
 import { useTiers } from '../../store/derived';
 import { STATUS } from '../../theme/tokens';
 import { MapPreview, Pill, PhotoBox, Row, Screen, Segmented, StepperTile, TextLink, Toggle } from '../../ui/controls';
-import { Display, Eyebrow, LqBadge, LqButton, LqCard, LqStat, Mono, Txt } from '../../ui/primitives';
+import { Display, Eyebrow, LqBadge, LqButton, LqCard, LqGlass, LqStat, Mono, Txt } from '../../ui/primitives';
 import { usePalette } from '../../ui/theme';
 
 export default function Onboarding() {
@@ -396,17 +397,13 @@ function TiersView({
   tiers,
   selected,
   onSelect,
-  onStart,
   starting,
-  error,
 }: {
   count: number;
   tiers: TierView[];
   selected: number;
   onSelect: (i: number) => void;
-  onStart: () => void;
   starting?: boolean;
-  error?: string | null;
 }) {
   const cur = tiers[selected] ?? tiers[1];
   return (
@@ -437,13 +434,74 @@ function TiersView({
           Covers {cur.covTxt} of the manufacturer-recommended service for your appliances.
         </Txt>
       </LqCard>
-      <View testID="onboarding-start">
-        <LqButton full onPress={onStart} disabled={starting}>
-          {starting ? 'Starting…' : `Start ${cur.name}`}
-        </LqButton>
-      </View>
-      {error ? <InlineError message={error} /> : null}
     </>
+  );
+}
+
+/** Pinned glass bar. The button stays in the same column as the tier cards. */
+function CoverageFooter({ label, onPress, disabled, error }: { label: string; onPress: () => void; disabled?: boolean; error?: string | null }) {
+  const insets = useSafeAreaInsets();
+  return (
+    <LqGlass
+      strong
+      style={{
+        borderRadius: 0,
+        borderLeftWidth: 0,
+        borderRightWidth: 0,
+        borderBottomWidth: 0,
+        paddingTop: 12,
+        paddingBottom: Math.max(16, insets.bottom + 12),
+        paddingHorizontal: 22,
+      }}
+    >
+      <View style={{ width: '100%', maxWidth: 396, alignSelf: 'center', gap: 10 }}>
+        {error ? <InlineError message={error} /> : null}
+        <View testID="onboarding-start">
+          <LqButton full onPress={onPress} disabled={disabled}>
+            {label}
+          </LqButton>
+        </View>
+      </View>
+    </LqGlass>
+  );
+}
+
+function CoverageScreen({
+  count,
+  tiers,
+  selected,
+  onSelect,
+  onBack,
+  onStart,
+  starting,
+  error,
+}: {
+  count: number;
+  tiers: TierView[];
+  selected: number;
+  onSelect: (i: number) => void;
+  onBack: () => void;
+  onStart: () => void;
+  starting?: boolean;
+  error?: string | null;
+}) {
+  const cur = tiers[selected] ?? tiers[1];
+  return (
+    <Screen
+      bottomInset={20}
+      footer={
+        <CoverageFooter
+          label={starting ? 'Starting…' : `Start ${cur.name}`}
+          onPress={onStart}
+          disabled={starting}
+          error={error}
+        />
+      }
+    >
+      <Steps step={5} onBack={onBack}>
+        <TiersView count={count} tiers={tiers} selected={selected} onSelect={onSelect} starting={starting} />
+      </Steps>
+    </Screen>
   );
 }
 
@@ -454,6 +512,7 @@ function TiersView({
 function DemoOnboarding() {
   const step = useApp((s) => s.step);
   const goStep = useApp((s) => s.goStep);
+  if (step === 5) return <DemoTiers />;
   return (
     <Screen>
       {step === 0 ? (
@@ -464,7 +523,6 @@ function DemoOnboarding() {
           {step === 2 && <DemoScan />}
           {step === 3 && <DemoDetails />}
           {step === 4 && <DemoResearch />}
-          {step === 5 && <DemoTiers />}
         </Steps>
       )}
     </Screen>
@@ -523,12 +581,14 @@ function DemoTiers() {
   const scanned = useApp((s) => s.scanned);
   const tier = useApp((s) => s.tier);
   const set = useApp((s) => s.set);
+  const goStep = useApp((s) => s.goStep);
   return (
-    <TiersView
+    <CoverageScreen
       count={scanned}
       tiers={tiers}
       selected={tier}
       onSelect={(i) => set({ tier: i })}
+      onBack={() => goStep(4)}
       onStart={() => {
         set({ step: 6 });
         router.replace('/homeowner/home');
@@ -549,6 +609,7 @@ function LiveOnboarding() {
   if (!hydrated) return <BlankField />;
   const step = Math.max(0, Math.min(5, draft.step));
   const goStep = (n: number) => draft.set({ step: n });
+  if (step === 5) return <LiveTiers draft={draft} />;
   return (
     <Screen>
       {step === 0 ? (
@@ -568,7 +629,6 @@ function LiveOnboarding() {
           {step === 2 && <LiveScan draft={draft} />}
           {step === 3 && <LiveDetails draft={draft} />}
           {step === 4 && <LiveResearch key={draft.buildId ?? 'none'} draft={draft} />}
-          {step === 5 && <LiveTiers draft={draft} />}
         </Steps>
       )}
     </Screen>
@@ -824,7 +884,15 @@ function LiveTiers({ draft }: { draft: Draft }) {
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!tiers || !inputs) return <LoadingState label="Pricing your plan options…" />;
+  if (!tiers || !inputs) {
+    return (
+      <Screen>
+        <Steps step={5} onBack={() => draft.set({ step: 4 })}>
+          <LoadingState label="Pricing your plan options…" />
+        </Steps>
+      </Screen>
+    );
+  }
   const selected = tiers[draft.tier] ? draft.tier : 1;
 
   const onStart = async () => {
@@ -849,11 +917,12 @@ function LiveTiers({ draft }: { draft: Draft }) {
   };
 
   return (
-    <TiersView
+    <CoverageScreen
       count={draft.appliances.length}
       tiers={tiers}
       selected={selected}
       onSelect={(i) => draft.set({ tier: i })}
+      onBack={() => draft.set({ step: 4 })}
       onStart={() => void onStart()}
       starting={starting}
       error={error}
