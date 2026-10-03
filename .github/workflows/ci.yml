@@ -23,3 +23,30 @@ jobs:
       - name: Database RLS + RPC tests (PGlite)
         working-directory: supabase/tests
         run: npm ci && npm test
+
+  verify-php:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Drive the offline demo
+        timeout-minutes: 12
+        env:
+          VERIFY_PHP_DEADLINE_MS: '720000'
+          VERIFY_PHP_COMMAND_MS: '45000'
+        run: node scripts/verify-php-ci.mjs
+      - name: Upload screenshots and score
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-php-${{ github.run_id }}
+          path: verify-php-output/
+          if-no-files-found: warn
+          retention-days: 14
