@@ -50,3 +50,22 @@ jobs:
           path: verify-php-output/
           if-no-files-found: warn
           retention-days: 14
+
+  skill-eval:
+    runs-on: ubuntu-latest
+    needs: verify-php
+    if: always() && needs.verify-php.result != 'cancelled'
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download the fresh score
+        uses: actions/download-artifact@v4
+        with:
+          name: verify-php-${{ github.run_id }}
+          path: verify-php-output
+      - name: Compare the score with the rubric
+        env:
+          PR_BASE: ${{ github.base_ref }}
+        run: node scripts/check-skill-eval.mjs
