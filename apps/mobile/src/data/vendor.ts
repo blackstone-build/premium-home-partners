@@ -9,7 +9,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import type { VendorViewInput } from '../components/vendorView';
+import type { VendorViewInput } from '../features/vendor/vendorView';
 import { useSession } from '../lib/auth';
 import { addDays, fmtShortDate, todayChicago } from '../lib/dates';
 import { useMode } from '../lib/mode';

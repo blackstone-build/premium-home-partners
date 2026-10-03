@@ -1,12 +1,12 @@
 import { Redirect, router, usePathname } from 'expo-router';
 import { useEffect, useState, type ReactNode } from 'react';
 import { View } from 'react-native';
-import { ROLE_HOME, useSession, type Role } from '../lib/auth';
-import { DEMO_ACCESS, ROLE_ACCOUNT, useDemoAccess } from '../lib/demoAccess';
-import { useMode } from '../lib/mode';
-import { Screen, TextLink } from '../ui/controls';
-import { usePalette } from '../ui/theme';
-import { ErrorState } from './States';
+import { ROLE_HOME, useSession, type Role } from '../../lib/auth';
+import { DEMO_ACCESS, ROLE_ACCOUNT, useDemoAccess } from '../../lib/demoAccess';
+import { useMode } from '../../lib/mode';
+import { Screen, TextLink } from '../../ui/controls';
+import { usePalette } from '../../ui/theme';
+import { ErrorState } from '../../components/States';
 
 /** Blank field, shown while the session resolves. */
 export function BlankField() {
