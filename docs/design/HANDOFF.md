@@ -49,7 +49,7 @@ The files in this bundle are **design references created in HTML**. They are pro
 - Scan: 1.1s "Reading plate…" state, then append. In production, show the camera preview, run on-device OCR (VisionKit / ML Kit via expo module), then call the `lookup-appliance` edge function.
 - Research: progress runs 0→100 over about 3s in the prototype. In production, stream progress from `build-plan` using Supabase Realtime on `plan_builds.status`.
 - Quote requests: create a `quote_request` and fan it out to matching vendors. Bids stream in over Realtime. The first booking wins and closes the request.
-- Tech status changes push notifications to the homeowner: en route → "Marcus is on the way · 12 min", and complete → report ready.
+- Tech status changes push notifications to the homeowner: en route → "Marcus is on the way", and complete → report ready. Minutes only when an ETA exists.
 - Notices: a scheduled job (pg_cron + an edge function) sends the 7-day notice (full task list) and the 48-hr notice (prep notes). Day-of notices fire on "Start driving".
 - Transitions: 200–300ms ease for toggles and progress. Buttons use active scale 0.98 (built into LqButton).
 - Dark mode: a global toggle. Tokens flip, and components need no changes.

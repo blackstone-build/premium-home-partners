@@ -4,6 +4,7 @@ import { AppExitLink } from '../auth/AppExitLink';
 import { EmptyState, ErrorState, LoadingState } from '../../components/States';
 import { useConfirmVisit, useCurrentVisit, useMyHome, useRescheduleVisit } from '../../data/homeowner';
 import { REQUEST_TASK_KEY, type VisitVM } from '../../data/visits';
+import { daysUntilVisit, greeting } from '../../lib/dates';
 import { useMode } from '../../lib/mode';
 import { STATUS } from '../../theme/tokens';
 import { Avatar, Row, Screen } from '../../ui/controls';
@@ -21,7 +22,7 @@ export default function HomeTab() {
     <View>
       <Row>
         <Txt size={14} muted>
-          {my.data ? `Good morning, ${my.data.firstName}` : ''}
+          {my.data ? `${greeting()}, ${my.data.firstName}` : ''}
         </Txt>
         <AppExitLink label="All apps" />
       </Row>
@@ -75,17 +76,19 @@ function VisitView({ header, visit, live }: { header: ReactNode; visit: VisitVM;
   const tech = visit.tech;
   const status = visit.status;
 
+  const who = tech?.firstName ?? 'Your technician';
   const banner =
     status === 'enroute'
-      ? { title: `${tech?.firstName ?? 'Your technician'} is on the way · 12 min`, sub: tech?.van ?? '' }
+      ? { title: `${who} is on the way`, sub: tech?.van ?? '' }
       : status === 'onsite'
-        ? { title: `${tech?.firstName ?? 'Your technician'} is on site`, sub: `${visit.doneCount} of ${visit.tasks.length} tasks done` }
+        ? { title: `${who} is on site`, sub: `${visit.doneCount} of ${visit.tasks.length} tasks done` }
         : status === 'done'
           ? { title: 'Visit complete · report ready', sub: 'See photos in Reports' }
           : null;
 
+  const daysOut = daysUntilVisit(visit.windowStart, visit.day);
   const notices = [
-    { t: '7 days · list sent', on: visit.notices.d7 },
+    { t: '7 days · list sent', on: visit.notices.d7 || (daysOut != null && daysOut >= 0 && daysOut <= 7) },
     { t: '48 hrs · reminder', on: visit.notices.h48 },
     { t: 'Day of · on the way', on: status !== 'scheduled' },
   ];

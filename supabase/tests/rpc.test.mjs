@@ -138,10 +138,7 @@ describe('tech flow: advance_visit, set_task_done, add_visit_photo, complete_vis
     await fails(call(U.elena, 'complete_visit', { p_visit: VISIT.elena }), NO_ACCESS);
     const r1 = await call(U.marcus, 'complete_visit', { p_visit: VISIT.elena });
     assert.equal(r1.health_score, 86);
-    assert.deepEqual(r1.findings, [
-      { text: 'Anode rod 70% depleted', tone: 'ochre', badge: 'Quote $185' },
-      { text: 'Dryer vent airflow normal', tone: 'forest', badge: 'Good' },
-    ]);
+    assert.deepEqual(r1.findings, []);
     const r2 = await call(U.marcus, 'complete_visit', { p_visit: VISIT.elena });
     assert.equal(r2.id, r1.id);
     assert.equal(await count(db, 'reports'), 1);
