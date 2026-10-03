@@ -7,7 +7,7 @@ import { COORDINATION_FEE, DEFAULT_MINUTES, TIERS, type HomeProfile, type Water 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { TECH_STATUS } from '../components/techStatus';
+import { TECH_STATUS } from './techStatus';
 import { addDays, fmtDay, fmtTime, startOfDayChicagoIso, todayChicago, wallClock, weekOfLabel } from '../lib/dates';
 import { friendlyError } from '../lib/errors';
 import { getMode, useMode } from '../lib/mode';

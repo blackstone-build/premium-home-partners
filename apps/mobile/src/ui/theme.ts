@@ -1,6 +1,14 @@
+import { createContext, createElement, useContext, type ReactNode } from 'react';
 import { DARK, LIGHT, type Palette } from '../theme/tokens';
-import { useApp } from '../store/app';
+
+const PaletteContext = createContext<Palette>(LIGHT);
+
+export function PaletteProvider({ value, children }: { value: Palette; children: ReactNode }) {
+  return createElement(PaletteContext.Provider, { value }, children);
+}
 
 export function usePalette(): Palette {
-  return useApp((s) => (s.dark ? DARK : LIGHT));
+  return useContext(PaletteContext);
 }
+
+export { DARK, LIGHT };

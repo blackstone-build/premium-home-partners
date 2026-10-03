@@ -1,17 +1,6 @@
 import { money } from '@php/pricing';
-import type { Palette } from '../theme/tokens';
-
-/**
- * What vendorView needs from a request, in either mode (see data/vendor.ts):
- * the bid count, the signed-in vendor's own bid, and whether (and to which
- * bid) the request was booked.
- */
-export interface VendorViewInput {
-  status: 'open' | 'booked' | 'canceled';
-  bookedBidId: string | null;
-  bidCount: number;
-  myBid: { id: string; price: number } | null;
-}
+import type { VendorViewInput } from '../../data/vendor';
+import type { Palette } from '../../theme/tokens';
 
 /** How a request looks from the signed-in vendor's side. */
 export function vendorView(r: VendorViewInput, c: Palette) {

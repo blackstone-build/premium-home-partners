@@ -7,7 +7,6 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { AppState, Linking, Modal, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FriendlyError } from '../../lib/errors';
-import { STATUS } from '../../theme/tokens';
 import { PhotoBox, Row, Stage, TextLink } from '../../ui/controls';
 import { Eyebrow, LqButton, Txt } from '../../ui/primitives';
 import { usePalette } from '../../ui/theme';

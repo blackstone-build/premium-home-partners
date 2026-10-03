@@ -13,9 +13,13 @@
     "test": "npm run test --workspaces --if-present && npm run test:functions",
     "sync:pricing": "node scripts/sync-pricing.mjs",
     "test:e2e": "playwright test",
+    "lint": "eslint .",
+    "check:boundaries": "node scripts/check-boundaries.mjs",
     "test:functions": "node --test --experimental-strip-types --no-warnings supabase/functions/_shared/*.test.ts"
   },
   "devDependencies": {
-    "@playwright/test": "^1.56.1"
+    "@playwright/test": "^1.56.1",
+    "eslint": "^10.12.0",
+    "typescript-eslint": "^8.71.0"
   }
 }
