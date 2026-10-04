@@ -4,7 +4,8 @@ import { RequestPhotoThumbs } from '../../components/ServiceBits';
 import { EmptyState, ErrorState, LoadingState } from '../../components/States';
 import { roomLabel, titleRepeatsDescription, urgencyLabel } from '../../data/servicesModel';
 import { stopWhen, useTechVisit, useTechVisitActions } from '../../data/tech';
-import { REQUEST_TASK_KEY } from '../../data/visits';
+import { REQUEST_TASK_KEY, type VisitVM } from '../../data/visits';
+import { useMode } from '../../lib/mode';
 import { STATUS } from '../../theme/tokens';
 import { Pill, Row, Screen, TextLink } from '../../ui/controls';
 import { Display, Eyebrow, LqBadge, LqButton, LqCard, LqSectionTitle, Mono, Txt } from '../../ui/primitives';
@@ -16,6 +17,36 @@ const ADVANCE_LABEL = {
   onsite: 'On site · work the checklist',
   done: 'Visit complete',
 } as const;
+
+/** What the homeowner actually set, plus any invented demo lines marked Sample. */
+function ClientNotes({ visit }: { visit: VisitVM }) {
+  const { mode } = useMode();
+  const demo = mode === 'demo';
+  const notes = visit.client.notes.trim();
+  const rows: { text: string; sample?: boolean }[] = [];
+  if (visit.client.pets) rows.push({ text: 'Pets in the home' });
+  if (demo && visit.client.pets) rows.push({ text: '2 friendly dogs — please close the side gate.', sample: true });
+  if (notes) rows.push({ text: notes, sample: demo });
+  if (!rows.length) {
+    return (
+      <Txt size={13} style={{ marginTop: 4 }}>
+        No notes from the client.
+      </Txt>
+    );
+  }
+  return (
+    <View style={{ marginTop: 4, gap: 8 }}>
+      {rows.map((row) => (
+        <View key={row.text} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+          {row.sample ? <LqBadge tone="slate">Sample</LqBadge> : null}
+          <Txt size={13} style={{ flex: 1 }}>
+            {row.text}
+          </Txt>
+        </View>
+      ))}
+    </View>
+  );
+}
 
 export default function TechJob() {
   const params = useLocalSearchParams<{ id?: string | string[] }>();
@@ -63,10 +94,7 @@ export default function TechJob() {
       </View>
       <LqCard>
         <Eyebrow>NOTES FROM CLIENT</Eyebrow>
-        <Txt size={13} style={{ marginTop: 4 }}>
-          {visit.client.pets ? '2 friendly dogs — please close the side gate. ' : ''}
-          {visit.client.notes || (visit.client.pets ? '' : 'No notes from the client.')}
-        </Txt>
+        <ClientNotes visit={visit} />
       </LqCard>
       <View testID="visit-advance">
         <LqButton full onPress={act.advance} disabled={act.advancing || onsite || status === 'done'}>
