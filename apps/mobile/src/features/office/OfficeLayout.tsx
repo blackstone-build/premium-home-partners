@@ -106,10 +106,15 @@ function OfficeConsole() {
                 <Mono size={11} medium tracking={0.1} muted>
                   PHP OFFICE
                 </Mono>
-                <View style={{ flexDirection: 'row', gap: 4, flexWrap: 'wrap' }}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator
+                  style={{ flexGrow: 0 }}
+                  contentContainerStyle={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+                >
                   {nav}
                   <ResetDemo wide={false} />
-                </View>
+                </ScrollView>
               </View>
             )}
             <View style={{ flex: 1, minWidth: 0, paddingVertical: 24, paddingHorizontal: wide ? 28 : 16, gap: 18 }}>
