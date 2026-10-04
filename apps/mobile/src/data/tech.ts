@@ -500,7 +500,7 @@ function useDemoVisitVM(): VisitVM {
       tech: { id: 'demo-tech', name: TECH.name, firstName: TECH.name.split(' ')[0], initials: TECH.initials, title: TECH.title, van: TECH.van },
       tasks,
       doneCount: tasks.filter((t) => t.done).length,
-      notices: { d7: true, h48: s.reminders, dayOf: s.tech !== 'scheduled', report: s.report },
+      notices: { d7: false, h48: s.reminders, dayOf: s.tech !== 'scheduled', report: s.report },
       reportId: s.report ? 'demo-report' : null,
       offeredSlots: [],
     };
@@ -524,7 +524,7 @@ const DEMO_OTHERS: VisitVM[] = OTHER_JOBS.map((j, i) => ({
   tech: null,
   tasks: [],
   doneCount: 0,
-  notices: { d7: true, h48: false, dayOf: false, report: false },
+  notices: { d7: false, h48: false, dayOf: false, report: false },
   reportId: null,
   offeredSlots: [],
 }));

@@ -7,7 +7,7 @@ import { vendorView } from './vendorView';
 import { usePricingInputs } from '../../data/pricing';
 import { useBidDraft, useVendorRequest, type VendorRequestVM } from '../../data/vendor';
 import { useMode } from '../../lib/mode';
-import { PhotoBox, Row, RoundBtn, Screen, TextLink } from '../../ui/controls';
+import { Row, RoundBtn, Screen, TextLink } from '../../ui/controls';
 import { Display, Eyebrow, LqButton, LqCard, Mono, Txt } from '../../ui/primitives';
 import { usePalette } from '../../ui/theme';
 
@@ -62,7 +62,7 @@ function RequestDetail({ r, v }: { r: VendorRequestVM; v: ReturnType<typeof vend
         <Txt size={13} muted style={{ marginTop: 4 }}>
           {r.sqft != null ? (
             <>
-              {r.street} · {r.sqft.toLocaleString('en-US')} sq ft lot + home
+              {r.street} · {r.sqft.toLocaleString('en-US')} sq ft living area
             </>
           ) : (
             r.street
@@ -72,14 +72,9 @@ function RequestDetail({ r, v }: { r: VendorRequestVM; v: ReturnType<typeof vend
       <LqCard>
         <Eyebrow>SCOPE</Eyebrow>
         <Txt style={{ marginTop: 4, lineHeight: 20 }}>
-          {r.sub}. Photos of the exterior from intake are attached. PHP coordinates access and scheduling.
+          {r.sub}. PHP coordinates access and scheduling.
         </Txt>
       </LqCard>
-      <PhotoBox height={120} radius={16}>
-        <Mono size={10} muted style={{ position: 'absolute', left: 10, bottom: 8 }}>
-          exterior photo from intake
-        </Mono>
-      </PhotoBox>
       {!v.hasMine && !v.closed ? (
         <>
           <Row style={{ paddingVertical: 12, paddingHorizontal: 14, borderRadius: 16, backgroundColor: c.glassStrong, borderWidth: 1, borderColor: c.rule }}>
