@@ -79,6 +79,8 @@ On the **launcher**, turn on **Offline demo mode** (below the cards). All four a
 
 To force every visitor into offline mode, set `EXPO_PUBLIC_DEMO_MODE=1` in Vercel → Settings → Environment Variables and redeploy. Remove it to go live again.
 
+The passwordless launcher is opt-in. A production build leaves `EXPO_PUBLIC_DEMO_ACCESS` unset and shows email-and-password sign-in. Set `EXPO_PUBLIC_DEMO_ACCESS=1` on the presentation deploy so the cards above keep signing in to the seeded accounts.
+
 If a side shows **"Too many attempts"**, wait a minute or use offline mode. Supabase allows about 30 password sign-ins per 5 minutes per network. Each tab signs in once per side and then reuses that session, so this only happens with many fresh tabs or devices on one Wi-Fi.
 
 ## Resetting
@@ -106,7 +108,7 @@ Everything shown in the click path above is backed by real data, row-level secur
 - **Accounts:** there is no real sign-up or login flow for customers. The launcher signs in to seeded demo accounts, and **New customer** reuses one seeded account (Jordan Lee) under the name you type. The email is checked but not stored. Only one new customer exists at a time.
   - Turn off "Allow new users to sign up" in Supabase → Authentication, since the app doesn't use it.
   - Leaked-password protection is off.
-  - Set `EXPO_PUBLIC_DEMO_ACCESS=0` to go back to the email-and-password login.
+  - Leave `EXPO_PUBLIC_DEMO_ACCESS` unset for the email-and-password login. `EXPO_PUBLIC_DEMO_ACCESS=1` is the passwordless launcher.
 - **Native apps:** there are no iOS or Android builds. The app runs on Expo, but only the web build was tested. The native camera screens and the navy splash screen (expo-splash-screen) need a new development build and have never run on a device.
 - **Plate reading with AI** needs the `ANTHROPIC_WORKSPACE_ID` Edge Function secret (see Health checks).
 - **Not built (P2):** push, email and SMS notices, the scheduled `send-notices` job, and Stripe checkout. "Start plan" activates the plan without payment.

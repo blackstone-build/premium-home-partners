@@ -9,7 +9,7 @@ import { TextLink } from '../../ui/controls';
  * The "‹ All apps" link. In offline demo it returns to the launcher, as
  * before. Live with demo access (the default) it does the same: back to the
  * launcher at /, still signed in, so switching sides is free. Live and
- * login-gated (EXPO_PUBLIC_DEMO_ACCESS=0) it reads "Sign out" and signs out.
+ * login-gated (demo access unset) it reads "Sign out" and signs out.
  * Pass `label` where a screen uses different text (e.g. "All apps").
  */
 export function AppExitLink({ label = '‹ All apps' }: { label?: string }) {

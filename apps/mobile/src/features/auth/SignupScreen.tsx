@@ -11,7 +11,7 @@ import { EMPTY_SIGNUP, signupPayload, validateSignup, type SignupErrors, type Si
 export default function Signup() {
   const { mode } = useMode();
   if (mode === 'demo') return <Redirect href="/" />;
-  // Login-gated build (EXPO_PUBLIC_DEMO_ACCESS=0): no sign-up, as before.
+  // Login-gated build (demo access unset): no sign-up, as before.
   if (!DEMO_ACCESS) return <Redirect href="/login" />;
   return <LiveSignup />;
 }

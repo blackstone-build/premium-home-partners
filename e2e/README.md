@@ -56,6 +56,7 @@ npx playwright install chromium        # once
 
 # Build the web app. Put the project's EXPO_PUBLIC_SUPABASE_URL /
 # EXPO_PUBLIC_SUPABASE_ANON_KEY in apps/mobile/.env.local for a live build.
+# The live specs need the presentation demo: EXPO_PUBLIC_DEMO_ACCESS=1.
 cd apps/mobile && npx expo export --platform web --output-dir dist && cd ../..
 
 npx playwright test                    # serves apps/mobile/dist on :8105

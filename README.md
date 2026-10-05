@@ -37,9 +37,11 @@ npm run build:web      # static web build → apps/mobile/dist
 
 ## Demo mode vs. Supabase
 
-With no Supabase env vars set, the app runs in **demo mode**: every role shares one on-device store (persisted with AsyncStorage/localStorage), exactly like the connected prototype. Onboard a home, start the visit in the Technician app, bid from the Vendor portal, change labor rates in the Office and watch prices update everywhere. **Reset demo** on the launcher clears it.
+With no Supabase env vars set, the app runs in **offline demo**: every role shares one on-device store (persisted with AsyncStorage/localStorage). Onboard a home, start the visit in the Technician app, bid from the Vendor portal, change labor rates in the Office and watch prices update everywhere. **Reset demo** on the launcher clears that device.
 
-Prices, suppliers, serial-plate OCR and AI research are sample data in demo mode.
+Prices, suppliers, serial-plate OCR and AI research are sample data in offline demo.
+
+A build with Supabase set and the demo flags **unset** is login-gated. It does not open the seeded accounts for you, list them on the sign-in screen, or offer **Reset demo data** in the live office. The presentation demo opts back in with `EXPO_PUBLIC_DEMO_ACCESS=1` (see `apps/mobile/.env.example`).
 
 To connect a backend:
 

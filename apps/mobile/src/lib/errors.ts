@@ -12,7 +12,7 @@ export const MSG = {
 export const SIGN_IN_MSG = {
   missing: 'Enter your email and password.',
   mismatch: "That email and password don't match.",
-  network: "Can't reach the server. Check your connection or switch to offline demo mode.",
+  network: "Can't reach the server. Check your connection and try again.",
   unconfirmed: "This account hasn't been confirmed yet.",
   rateLimited: 'Too many attempts. Wait a minute, then try again.',
   disabled: 'This account is turned off. Ask the office to turn it back on.',

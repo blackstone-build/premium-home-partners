@@ -60,7 +60,7 @@ test('sign-in errors', () => {
   assert.equal(signInErrorMessage({ name: 'AuthUnknownError', message: 'boom', status: 500 }), SIGN_IN_MSG.server);
   assert.equal(signInErrorMessage(undefined), SIGN_IN_MSG.generic);
   assert.equal(SIGN_IN_MSG.mismatch, "That email and password don't match.");
-  assert.equal(SIGN_IN_MSG.network, "Can't reach the server. Check your connection or switch to offline demo mode.");
+  assert.equal(SIGN_IN_MSG.network, "Can't reach the server. Check your connection and try again.");
 });
 
 test('an expired JWT is still recognised after fetchers wrap it (the query-cache listener sees the wrapped error)', () => {

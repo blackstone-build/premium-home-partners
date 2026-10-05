@@ -4,6 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppExitLink } from '../auth/AppExitLink';
 import { RoleGate } from '../auth/RoleGate';
 import { useResetDemo } from '../../data/office';
+import { DEMO_TOOLS } from '../../lib/flags';
+import { useMode } from '../../lib/mode';
 import { useNewRequestCount } from '../../data/officeRequests';
 import { Stage } from '../../ui/controls';
 import { Display, LqButton, LqGlass, Mono, Txt } from '../../ui/primitives';
@@ -26,7 +28,12 @@ export default function OfficeLayout() {
 
 /** "Reset demo data": full-width ghost at the foot of the sidebar, or the last item of the phone tab row. */
 function ResetDemo({ wide }: { wide: boolean }) {
+  const { mode } = useMode();
   const reset = useResetDemo();
+  // Live production must not offer a button that wipes the database. Offline
+  // demo still resets this device. EXPO_PUBLIC_DEMO_ACCESS or ALLOW_DEMO_TOOLS
+  // puts the server reset back for the presentation build.
+  if (mode === 'live' && !DEMO_TOOLS) return null;
   return (
     <LqButton
       variant="ghost"

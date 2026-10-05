@@ -68,6 +68,8 @@ jobs:
         env:
           EXPO_PUBLIC_SUPABASE_URL: ${{ env.E2E_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ env.E2E_SUPABASE_ANON_KEY }}
+          # This suite targets the presentation demo. Production builds leave it unset.
+          EXPO_PUBLIC_DEMO_ACCESS: '1'
         run: npx expo export --platform web --output-dir dist --clear
 
       - name: Run the suite ${{ env.RUNS }} times in a row
