@@ -4,6 +4,7 @@ import { Pressable, TextInput, View, type TextInputProps } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 import { ROLE_HOME, useSession } from '../../lib/auth';
 import { DEMO_ACCESS } from '../../lib/demoAccess';
+import { DEMO_PASSWORD, DEMO_TOOLS, SHOW_DEMO_ACCOUNTS } from '../../lib/flags';
 import { useMode } from '../../lib/mode';
 import { useApp } from '../../store/app';
 import { BrandHeader } from './BrandHeader';
@@ -11,9 +12,7 @@ import { Row, Screen, TextLink, Toggle } from '../../ui/controls';
 import { Eyebrow, LqButton, LqCard, Mono, Txt } from '../../ui/primitives';
 import { usePalette } from '../../ui/theme';
 
-const DEMO_PASSWORD = 'phpdemo2026';
-
-/** Seeded demo logins (docs/LIVE_ARCHITECTURE.md §6). */
+/** Seeded demo logins (docs/LIVE_ARCHITECTURE.md §6). Shown only when EXPO_PUBLIC_SHOW_DEMO_ACCOUNTS=1. */
 const DEMO_ACCOUNTS = [
   { key: 'homeowner', label: 'Homeowner · Elena Alvarez', email: 'homeowner@php.test' },
   { key: 'newhome', label: 'New homeowner · Jordan Lee', email: 'newhome@php.test' },
@@ -21,8 +20,6 @@ const DEMO_ACCOUNTS = [
   { key: 'vendor', label: 'Vendor · Sam Ortiz', email: 'vendor@php.test' },
   { key: 'office', label: 'Office · Avery Brooks', email: 'office@php.test' },
 ] as const;
-
-const SHOW_DEMO_ACCOUNTS = process.env.EXPO_PUBLIC_SHOW_DEMO_ACCOUNTS !== '0';
 
 export default function Login() {
   const { mode } = useMode();
@@ -182,28 +179,30 @@ function SignIn() {
         </LqCard>
       ) : null}
 
-      <View style={{ borderRadius: 14, backgroundColor: c.glassStrong, borderWidth: 1, borderColor: c.rule }}>
-        <Pressable
-          testID="demo-mode-toggle"
-          accessibilityRole="switch"
-          accessibilityState={{ checked: false }}
-          accessibilityLabel="Offline demo mode"
-          onPress={() => {
-            setMode('demo');
-            router.replace('/');
-          }}
-        >
-          <Row style={{ paddingVertical: 12, paddingHorizontal: 14, gap: 12 }}>
-            <View style={{ flex: 1, gap: 2 }}>
-              <Txt>Offline demo mode</Txt>
-              <Txt size={12} muted style={{ lineHeight: 17 }}>
-                All four apps on this device, no account or connection needed.
-              </Txt>
-            </View>
-            <Toggle on={false} />
-          </Row>
-        </Pressable>
-      </View>
+      {DEMO_TOOLS ? (
+        <View style={{ borderRadius: 14, backgroundColor: c.glassStrong, borderWidth: 1, borderColor: c.rule }}>
+          <Pressable
+            testID="demo-mode-toggle"
+            accessibilityRole="switch"
+            accessibilityState={{ checked: false }}
+            accessibilityLabel="Offline demo mode"
+            onPress={() => {
+              setMode('demo');
+              router.replace('/');
+            }}
+          >
+            <Row style={{ paddingVertical: 12, paddingHorizontal: 14, gap: 12 }}>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Txt>Offline demo mode</Txt>
+                <Txt size={12} muted style={{ lineHeight: 17 }}>
+                  All four apps on this device, no account or connection needed.
+                </Txt>
+              </View>
+              <Toggle on={false} />
+            </Row>
+          </Pressable>
+        </View>
+      ) : null}
 
       <Row style={{ justifyContent: 'flex-start' }}>
         <LqButton variant="ghost" onPress={() => set({ dark: !dark })}>

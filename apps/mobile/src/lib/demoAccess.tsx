@@ -8,8 +8,8 @@
 // Supabase allows ~30 password sign-ins per 5 minutes per IP, and venue wifi
 // puts every device behind one IP.
 //
-// EXPO_PUBLIC_DEMO_ACCESS=0 turns all of this off: the app is login-gated
-// exactly as before (the launcher, auto-switching and "‹ All apps" go away).
+// EXPO_PUBLIC_DEMO_ACCESS=1 turns this on. Left unset, the app is login-gated
+// (no launcher, no auto-switching; "‹ All apps" is "Sign out").
 //
 // Cache: per browser tab in sessionStorage under `php-demo-sessions-<tabId>`
 // (next to the tab's auth session, see lib/supabase.ts), in memory on native.
@@ -22,16 +22,13 @@ import type { Session } from '@supabase/supabase-js';
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
 import { HO_KEYS, resetOnboardingDraft } from '../data/homeowner';
 import { localSignOut, profileKey, useAdoptSession, waitForSignOut, withTimeout, type Role } from './auth';
+import { DEMO_ACCESS, DEMO_PASSWORD } from './flags';
 import { SIGN_IN_MSG, friendlyError, isNetworkError, signInErrorMessage } from './errors';
 import { queryClient } from './queryClient';
 import { rpc } from './rpc';
 import { supabase, webTabId } from './supabase';
 
-/** On unless EXPO_PUBLIC_DEMO_ACCESS=0 (then the app is login-gated as before). */
-export const DEMO_ACCESS = process.env.EXPO_PUBLIC_DEMO_ACCESS !== '0';
-
-/** Public client config: every seeded demo login uses it (docs/DEMO_RUNBOOK.md). */
-export const DEMO_PASSWORD = 'phpdemo2026';
+export { DEMO_ACCESS, DEMO_PASSWORD };
 
 export type DemoAccount = 'homeowner' | 'newhome' | 'tech' | 'vendor' | 'office';
 

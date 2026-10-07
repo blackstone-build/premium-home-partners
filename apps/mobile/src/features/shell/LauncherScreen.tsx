@@ -28,7 +28,7 @@ export default function Index() {
   return DEMO_ACCESS ? <LiveLauncher /> : <LiveHome />;
 }
 
-/** Live and login-gated (EXPO_PUBLIC_DEMO_ACCESS=0): route by session and role. */
+/** Live and login-gated (demo access unset): route by session and role. */
 function LiveHome() {
   const s = useSession();
   if (s.status === 'loading') return <BlankField />;

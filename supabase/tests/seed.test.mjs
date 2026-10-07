@@ -2,7 +2,7 @@
 
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
-import { HOME, SEED_COUNTS, U, VENDOR, VISIT, count, counts, createDb, one, rows } from './harness.mjs';
+import { HOME, SEED_COUNTS, U, VENDOR, VISIT, as, count, counts, createDb, one, rows, rpc } from './harness.mjs';
 
 let db;
 before(async () => {
@@ -48,6 +48,19 @@ describe('seed', () => {
       { start: '2026-10-17T13:00:00Z', end: '2026-10-17T15:00:00Z' },
     ]);
     await db.query('select public.seed_demo()');
+  });
+
+  test('a production database refuses demo accounts and demo seed', async () => {
+    const before = await counts(db);
+    await db.exec("select set_config('app.environment', 'production', false)");
+    const refused = /Demo data is turned off on this production database\./;
+    await assert.rejects(() => db.query('select public.seed_demo()'), (e) => refused.test(e.message) && e.code === 'P0001');
+    await assert.rejects(() => db.query('select public.ensure_demo_users()'), (e) => refused.test(e.message) && e.code === 'P0001');
+    await assert.rejects(() => as(db, U.office, (tx) => rpc(tx, 'reset_demo')), (e) => refused.test(e.message) && e.code === 'P0001');
+    assert.deepEqual(await counts(db), before);
+    await db.exec("select set_config('app.environment', '', false)");
+    await db.query('select public.seed_demo()');
+    assert.deepEqual(await counts(db), SEED_COUNTS);
   });
 });
 

@@ -38,7 +38,7 @@ export function SessionErrorScreen() {
 
 /**
  * Guards a role's screens. Offline demo: renders children. Live, login-gated
- * (EXPO_PUBLIC_DEMO_ACCESS=0): blank field while loading, signed-out users go
+ * (demo access unset): blank field while loading, signed-out users go
  * to /login, other roles go to their own home. Live with demo access: a
  * signed-out tab or another role switches to this role's demo account first,
  * so a deep link like /tech opens the technician app in a fresh tab.

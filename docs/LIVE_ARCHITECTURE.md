@@ -87,12 +87,13 @@ Display headline "Welcome back.", email and password fields styled exactly like
 the onboarding `Field`, and a full-width primary `LqButton` "Sign in" that is
 disabled while submitting and shows "Signing in…". Errors appear as brick-colored
 13px text, e.g. "That email and password don't match." or "Can't reach the
-server. Check your connection or switch to offline demo mode." Below that:
+server. Check your connection and try again." Below that:
 
-- a **Demo accounts** card (hidden when `EXPO_PUBLIC_SHOW_DEMO_ACCOUNTS=0`)
+- a **Demo accounts** card (shown only when `EXPO_PUBLIC_SHOW_DEMO_ACCOUNTS=1`)
   listing the five accounts as tappable rows that fill in the email and
   password;
-- a row with a `Toggle` for **Offline demo mode**, which calls `setMode('demo')`
+- a row with a `Toggle` for **Offline demo mode** (shown when demo access or
+  `EXPO_PUBLIC_ALLOW_DEMO_TOOLS` is on), which calls `setMode('demo')`
   and goes to `/`;
 - a ghost "Dark mode" / "Light mode" button, the same as on the launcher.
 
